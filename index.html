@@ -3,64 +3,68 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Fietscomputer</title>
-    <!-- Zorgt ervoor dat de app fullscreen opent vanaf het beginscherm -->
+    <title>Fietscomputer Simulator</title>
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     
     <style>
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             background-color: #000000;
             color: #ffffff;
             margin: 0;
-            padding: 0;
+            padding: 20px;
             display: flex;
             flex-direction: column;
-            justify-content: center;
             align-items: center;
-            height: 100vh;
-            text-align: center;
-            overflow: hidden;
+            min-height: 100vh;
+            box-sizing: border-box;
         }
 
-        #speed-container {
-            flex: 2;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-        }
-
-        #speed {
-            font-size: 120px;
-            font-weight: 800;
-            line-height: 1;
-            color: #34c759; /* Apple Groen */
-        }
-
-        .unit {
-            font-size: 24px;
+        #badge {
+            background-color: #ffcc00;
+            color: #000000;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
             text-transform: uppercase;
-            letter-spacing: 2px;
-            color: #8e8e93;
             margin-top: 10px;
         }
 
+        #speed-container {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        #speed {
+            font-size: 110px;
+            font-weight: 800;
+            line-height: 1;
+            color: #34c759;
+        }
+
+        .unit {
+            font-size: 20px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #8e8e93;
+            margin-top: 5px;
+        }
+
         #stats-container {
-            flex: 1;
             display: flex;
             width: 100%;
-            border-top: 1px solid #1c1c1e;
+            max-width: 400px;
+            margin: 30px 0;
             background-color: #1c1c1e;
+            border-radius: 12px;
+            padding: 15px 0;
         }
 
         .stat-box {
             flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
+            text-align: center;
             border-right: 1px solid #2c2c2e;
         }
 
@@ -69,22 +73,75 @@
         }
 
         .stat-value {
-            font-size: 28px;
+            font-size: 26px;
             font-weight: 600;
         }
 
-        #error-message {
-            position: absolute;
-            top: 20px;
-            color: #ff3b30;
-            font-weight: bold;
-            padding: 0 20px;
+        .controls {
+            display: flex;
+            gap: 15px;
+            width: 100%;
+            max-width: 400px;
+            margin-bottom: 30px;
         }
+
+        button {
+            flex: 1;
+            border: none;
+            padding: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        button:active {
+            opacity: 0.7;
+        }
+
+        #btn-start { background-color: #34c759; color: #fff; }
+        #btn-start.paused { background-color: #ffcc00; color: #000; }
+        #btn-stop { background-color: #ff3b30; color: #fff; }
+
+        #history-container {
+            width: 100%;
+            max-width: 400px;
+            background-color: #1c1c1e;
+            border-radius: 12px;
+            padding: 15px;
+            box-sizing: border-box;
+        }
+
+        #history-container h3 {
+            margin-top: 0;
+            border-bottom: 1px solid #2c2c2e;
+            padding-bottom: 10px;
+            font-size: 18px;
+        }
+
+        .history-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #2c2c2e;
+            font-size: 14px;
+        }
+
+        .history-item:last-child { border-bottom: none; }
     </style>
 </head>
 <body>
 
-    <div id="error-message"></div>
+    <div id="badge">Demo / Simulatiemodus</div>
 
     <div id="speed-container">
         <div id="speed">0.0</div>
@@ -94,96 +151,138 @@
     <div id="stats-container">
         <div class="stat-box">
             <div id="distance" class="stat-value">0.00</div>
-            <div class="unit" style="font-size: 12px;">Afstand (km)</div>
+            <div class="unit" style="font-size: 11px;">Afstand (km)</div>
         </div>
         <div class="stat-box">
-            <div id="accuracy" class="stat-value">--</div>
-            <div class="unit" style="font-size: 12px;">GPS Nauwkeurigheid (m)</div>
+            <div id="duration" class="stat-value">00:00</div>
+            <div class="unit" style="font-size: 11px;">Tijd</div>
         </div>
+    </div>
+
+    <div class="controls">
+        <button id="btn-start">START</button>
+        <button id="btn-stop" disabled style="opacity: 0.5;">STOP</button>
+    </div>
+
+    <div id="history-container">
+        <h3>Ritgeschiedenis</h3>
+        <ul id="history-list" class="history-list"></ul>
     </div>
 
     <script>
         const speedElement = document.getElementById('speed');
         const distanceElement = document.getElementById('distance');
-        const accuracyElement = document.getElementById('accuracy');
-        const errorElement = document.getElementById('error-message');
+        const durationElement = document.getElementById('duration');
+        
+        const btnStart = document.getElementById('btn-start');
+        const btnStop = document.getElementById('btn-stop');
+        const historyList = document.getElementById('history-list');
 
-        let totalDistance = 0; // in kilometers
-        let lastPosition = null;
+        let totalDistance = 0;
+        let isTracking = false;
+        let elapsedSeconds = 0;
+        
+        let timerInterval = null;
+        let simulationInterval = null;
 
-        // Bereken afstand tussen twee GPS-coördinaten (Haversine formule)
-        function calculateDistance(lat1, lon1, lat2, lon2) {
-            const R = 6371; // Straal van de aarde in km
-            const dLat = (lat2 - lat1) * Math.PI / 180;
-            const dLon = (lon2 - lon1) * Math.PI / 180;
-            const a = 
-                Math.sin(dLat/2) * Math.sin(dLat/2) +
-                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
-                Math.sin(dLon/2) * Math.sin(dLon/2);
-            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-            return R * c;
+        function formatTime(seconds) {
+            const hrs = Math.floor(seconds / 3600);
+            const mins = Math.floor((seconds % 3600) / 60);
+            const secs = seconds % 60;
+            return [
+                hrs > 0 ? String(hrs).padStart(2, '0') : null,
+                String(mins).padStart(2, '0'),
+                String(secs).padStart(2, '0')
+            ].filter(Boolean).join(':');
         }
 
-        function updatePosition(position) {
-            errorElement.innerText = ""; // Wis eventuele fouten
-            
-            // 1. Snelheid verwerken (m/s naar km/u)
-            let speedMS = position.coords.speed;
-            if (speedMS !== null && speedMS > 0) {
-                let speedKMH = speedMS * 3.6;
-                speedElement.innerText = speedKMH.toFixed(1);
+        // Simuleert fietsdata elke seconde
+        function simulateRiding() {
+            // Genereer een realistische fietssnelheid tussen 15.0 en 28.0 km/u
+            let currentSpeed = (Math.random() * (28 - 15) + 15);
+            speedElement.innerText = currentSpeed.toFixed(1);
+
+            // Voeg de afgelegde afstand van deze seconde toe (snelheid / 3600)
+            let distanceThisSecond = currentSpeed / 3600;
+            totalDistance += distanceThisSecond;
+            distanceElement.innerText = totalDistance.toFixed(2);
+        }
+
+        btnStart.addEventListener('click', () => {
+            if (!isTracking) {
+                isTracking = true;
+                btnStart.innerText = "PAUZE";
+                btnStart.classList.add('paused');
+                btnStop.disabled = false;
+                btnStop.style.opacity = "1";
+                
+                // Start timer
+                timerInterval = setInterval(() => {
+                    elapsedSeconds++;
+                    durationElement.innerText = formatTime(elapsedSeconds);
+                }, 1000);
+
+                // Start datasimulatie
+                simulationInterval = setInterval(simulateRiding, 1000);
             } else {
+                isTracking = false;
+                btnStart.innerText = "HERSTART";
+                btnStart.classList.remove('paused');
+                clearInterval(timerInterval);
+                clearInterval(simulationInterval);
                 speedElement.innerText = "0.0";
             }
+        });
 
-            // 2. GPS Nauwkeurigheid tonen
-            let accuracy = position.coords.accuracy;
-            accuracyElement.innerText = Math.round(accuracy);
-
-            // 3. Afstand berekenen (alleen als de GPS nauwkeurig genoeg is, bijv. binnen 20 meter)
-            if (accuracy < 20) {
-                if (lastPosition !== null) {
-                    let dist = calculateDistance(
-                        lastPosition.coords.latitude, 
-                        lastPosition.coords.longitude,
-                        position.coords.latitude, 
-                        position.coords.longitude
-                    );
-                    
-                    // Filter stilstaande ruis eruit (bijv. als je stilstaat maar GPS verspringt)
-                    if (speedMS > 0.5) { 
-                        totalDistance += dist;
-                        distanceElement.innerText = totalDistance.toFixed(2);
-                    }
-                }
-                lastPosition = position;
+        btnStop.addEventListener('click', () => {
+            isTracking = false;
+            clearInterval(timerInterval);
+            clearInterval(simulationInterval);
+            
+            if (totalDistance > 0 || elapsedSeconds > 0) {
+                saveRide(totalDistance.toFixed(2), formatTime(elapsedSeconds));
             }
+
+            totalDistance = 0;
+            elapsedSeconds = 0;
+            
+            speedElement.innerText = "0.0";
+            distanceElement.innerText = "0.00";
+            durationElement.innerText = "00:00";
+            
+            btnStart.innerText = "START";
+            btnStart.classList.remove('paused');
+            btnStop.disabled = true;
+            btnStop.style.opacity = "0.5";
+        });
+
+        function saveRide(distance, time) {
+            const date = new Date().toLocaleDateString('nl-NL', { day: '2-digit', month: '2-digit' });
+            const ride = { date, distance, time };
+            
+            let rides = JSON.parse(localStorage.getItem('rides')) || [];
+            rides.unshift(ride);
+            localStorage.setItem('rides', JSON.stringify(rides));
+            
+            renderHistory();
         }
 
-        function handleError(error) {
-            switch(error.code) {
-                case error.PERMISSION_DENIED:
-                    errorElement.innerText = "Geef toegang tot je locatie in de instellingen.";
-                    break;
-                case error.POSITION_UNAVAILABLE:
-                    errorElement.innerText = "Locatiegegevens niet beschikbaar.";
-                    break;
-                case error.TIMEOUT:
-                    errorElement.innerText = "GPS verbinding verbroken.";
-                    break;
+        function renderHistory() {
+            historyList.innerHTML = "";
+            let rides = JSON.parse(localStorage.getItem('rides')) || [];
+            if (rides.length === 0) {
+                historyList.innerHTML = `<li class="history-item" style="color:#8e8e93;">Nog geen ritten opgeslagen</li>`;
+                return;
             }
-        }
-
-        // Start het live tracken van de GPS
-        if ("geolocation" in navigator) {
-            navigator.geolocation.watchPosition(updatePosition, handleError, {
-                enableHighAccuracy: true, // Forceert het gebruik van de GPS-chip
-                timeout: 5000,
-                maximumAge: 0
+            rides.forEach(ride => {
+                const li = document.createElement('li');
+                li.className = 'history-item';
+                li.innerHTML = `<span>📅 ${ride.date}</span> <span>🏁 ${ride.distance} km</span> <span>⏱️ ${ride.time}</span>`;
+                historyList.appendChild(li);
             });
-        } else {
-            errorElement.innerText = "Jouw browser ondersteunt geen GPS.";
         }
+
+        renderHistory();
     </script>
 </body>
 </html>
