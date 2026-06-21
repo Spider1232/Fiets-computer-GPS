@@ -1,288 +1,546 @@
 <!DOCTYPE html>
 <html lang="nl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Fietscomputer Simulator</title>
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    
-    <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background-color: #000000;
-            color: #ffffff;
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-            box-sizing: border-box;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-        #badge {
-            background-color: #ffcc00;
-            color: #000000;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: bold;
-            text-transform: uppercase;
-            margin-top: 10px;
-        }
+<title>Fietscomputer Live</title>
 
-        #speed-container {
-            margin-top: 20px;
-            text-align: center;
-        }
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
-        #speed {
-            font-size: 110px;
-            font-weight: 800;
-            line-height: 1;
-            color: #34c759;
-        }
+<style>
+body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:#000;
+    color:#fff;
+    margin:0;
+    padding:20px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    min-height:100vh;
+    box-sizing:border-box;
+}
 
-        .unit {
-            font-size: 20px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            color: #8e8e93;
-            margin-top: 5px;
-        }
+#error-message{
+    color:#ff3b30;
+    font-weight:bold;
+    text-align:center;
+    margin-bottom:10px;
+    min-height:20px;
+    font-size:14px;
+}
 
-        #stats-container {
-            display: flex;
-            width: 100%;
-            max-width: 400px;
-            margin: 30px 0;
-            background-color: #1c1c1e;
-            border-radius: 12px;
-            padding: 15px 0;
-        }
+#speed-container{
+    margin-top:20px;
+    text-align:center;
+}
 
-        .stat-box {
-            flex: 1;
-            text-align: center;
-            border-right: 1px solid #2c2c2e;
-        }
+#speed{
+    font-size:110px;
+    font-weight:800;
+    line-height:1;
+    color:#34c759;
+}
 
-        .stat-box:last-child {
-            border-right: none;
-        }
+.unit{
+    font-size:20px;
+    color:#8e8e93;
+    text-transform:uppercase;
+    letter-spacing:2px;
+}
 
-        .stat-value {
-            font-size: 26px;
-            font-weight: 600;
-        }
+#stats-container{
+    display:flex;
+    width:100%;
+    max-width:400px;
+    margin:30px 0;
+    background:#1c1c1e;
+    border-radius:12px;
+    padding:15px 0;
+}
 
-        .controls {
-            display: flex;
-            gap: 15px;
-            width: 100%;
-            max-width: 400px;
-            margin-bottom: 30px;
-        }
+.stat-box{
+    flex:1;
+    text-align:center;
+    border-right:1px solid #2c2c2e;
+}
 
-        button {
-            flex: 1;
-            border: none;
-            padding: 15px;
-            font-size: 18px;
-            font-weight: bold;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: opacity 0.2s;
-        }
+.stat-box:last-child{
+    border-right:none;
+}
 
-        button:active {
-            opacity: 0.7;
-        }
+.stat-value{
+    font-size:26px;
+    font-weight:600;
+}
 
-        #btn-start { background-color: #34c759; color: #fff; }
-        #btn-start.paused { background-color: #ffcc00; color: #000; }
-        #btn-stop { background-color: #ff3b30; color: #fff; }
+.controls{
+    display:flex;
+    gap:15px;
+    width:100%;
+    max-width:400px;
+    margin-bottom:20px;
+}
 
-        #history-container {
-            width: 100%;
-            max-width: 400px;
-            background-color: #1c1c1e;
-            border-radius: 12px;
-            padding: 15px;
-            box-sizing: border-box;
-        }
+button{
+    flex:1;
+    border:none;
+    padding:15px;
+    font-size:18px;
+    font-weight:bold;
+    border-radius:12px;
+    cursor:pointer;
+}
 
-        #history-container h3 {
-            margin-top: 0;
-            border-bottom: 1px solid #2c2c2e;
-            padding-bottom: 10px;
-            font-size: 18px;
-        }
+#btn-start{
+    background:#34c759;
+    color:white;
+}
 
-        .history-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            max-height: 200px;
-            overflow-y: auto;
-        }
+#btn-start.paused{
+    background:#ffcc00;
+    color:black;
+}
 
-        .history-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 10px 0;
-            border-bottom: 1px solid #2c2c2e;
-            font-size: 14px;
-        }
+#btn-stop{
+    background:#ff3b30;
+    color:white;
+}
 
-        .history-item:last-child { border-bottom: none; }
-    </style>
+#history-container{
+    width:100%;
+    max-width:400px;
+    background:#1c1c1e;
+    border-radius:12px;
+    padding:15px;
+    box-sizing:border-box;
+    margin-bottom:20px;
+}
+
+.history-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    border-bottom:1px solid #2c2c2e;
+    padding-bottom:10px;
+}
+
+.history-list{
+    list-style:none;
+    padding:0;
+    margin:0;
+    max-height:250px;
+    overflow-y:auto;
+}
+
+.history-item{
+    display:flex;
+    justify-content:space-between;
+    padding:10px 0;
+    border-bottom:1px solid #2c2c2e;
+    font-size:14px;
+}
+
+.history-item:last-child{
+    border-bottom:none;
+}
+
+#btn-clear-history{
+    background:none;
+    color:#ff3b30;
+    border:none;
+    padding:0;
+    font-size:14px;
+}
+
+.backup-controls{
+    display:flex;
+    gap:10px;
+    width:100%;
+    max-width:400px;
+}
+
+.btn-backup{
+    background:#2c2c2e;
+    color:#0a84ff;
+    font-size:14px;
+    padding:10px;
+}
+
+#file-input{
+    display:none;
+}
+</style>
 </head>
+
 <body>
 
-    <div id="badge">Demo / Simulatiemodus</div>
+<div id="error-message">Wachten op GPS-signaal...</div>
 
-    <div id="speed-container">
-        <div id="speed">0.0</div>
-        <div class="unit">km/u</div>
+<div id="speed-container">
+    <div id="speed">0.0</div>
+    <div class="unit">km/u</div>
+</div>
+
+<div id="stats-container">
+    <div class="stat-box">
+        <div id="distance" class="stat-value">0.00</div>
+        <div class="unit" style="font-size:11px;">Afstand (km)</div>
     </div>
 
-    <div id="stats-container">
-        <div class="stat-box">
-            <div id="distance" class="stat-value">0.00</div>
-            <div class="unit" style="font-size: 11px;">Afstand (km)</div>
-        </div>
-        <div class="stat-box">
-            <div id="duration" class="stat-value">00:00</div>
-            <div class="unit" style="font-size: 11px;">Tijd</div>
-        </div>
+    <div class="stat-box">
+        <div id="duration" class="stat-value">00:00</div>
+        <div class="unit" style="font-size:11px;">Tijd</div>
     </div>
+</div>
 
-    <div class="controls">
-        <button id="btn-start">START</button>
-        <button id="btn-stop" disabled style="opacity: 0.5;">STOP</button>
-    </div>
+<div class="controls">
+    <button id="btn-start">START</button>
+    <button id="btn-stop" disabled style="opacity:.5;">STOP</button>
+</div>
 
-    <div id="history-container">
+<div id="history-container">
+    <div class="history-header">
         <h3>Ritgeschiedenis</h3>
-        <ul id="history-list" class="history-list"></ul>
+        <button id="btn-clear-history">Wis alles</button>
     </div>
 
-    <script>
-        const speedElement = document.getElementById('speed');
-        const distanceElement = document.getElementById('distance');
-        const durationElement = document.getElementById('duration');
-        
-        const btnStart = document.getElementById('btn-start');
-        const btnStop = document.getElementById('btn-stop');
-        const historyList = document.getElementById('history-list');
+    <ul id="history-list" class="history-list"></ul>
+</div>
 
-        let totalDistance = 0;
-        let isTracking = false;
-        let elapsedSeconds = 0;
-        
-        let timerInterval = null;
-        let simulationInterval = null;
+<div class="backup-controls">
+    <button id="btn-export" class="btn-backup">📥 Exporteer</button>
+    <button id="btn-import-trigger" class="btn-backup">📤 Importeer</button>
+    <input type="file" id="file-input" accept=".json">
+</div>
 
-        function formatTime(seconds) {
-            const hrs = Math.floor(seconds / 3600);
-            const mins = Math.floor((seconds % 3600) / 60);
-            const secs = seconds % 60;
-            return [
-                hrs > 0 ? String(hrs).padStart(2, '0') : null,
-                String(mins).padStart(2, '0'),
-                String(secs).padStart(2, '0')
-            ].filter(Boolean).join(':');
-        }
+<script>
 
-        // Simuleert fietsdata elke seconde
-        function simulateRiding() {
-            // Genereer een realistische fietssnelheid tussen 15.0 en 28.0 km/u
-            let currentSpeed = (Math.random() * (28 - 15) + 15);
-            speedElement.innerText = currentSpeed.toFixed(1);
+const speedElement = document.getElementById("speed");
+const distanceElement = document.getElementById("distance");
+const durationElement = document.getElementById("duration");
+const errorElement = document.getElementById("error-message");
 
-            // Voeg de afgelegde afstand van deze seconde toe (snelheid / 3600)
-            let distanceThisSecond = currentSpeed / 3600;
-            totalDistance += distanceThisSecond;
+const btnStart = document.getElementById("btn-start");
+const btnStop = document.getElementById("btn-stop");
+
+const historyList = document.getElementById("history-list");
+const btnClearHistory = document.getElementById("btn-clear-history");
+
+const btnExport = document.getElementById("btn-export");
+const btnImportTrigger = document.getElementById("btn-import-trigger");
+const fileInput = document.getElementById("file-input");
+
+let totalDistance = 0;
+let elapsedSeconds = 0;
+let isTracking = false;
+let lastPosition = null;
+let timerInterval = null;
+
+function calculateDistance(lat1, lon1, lat2, lon2){
+    const R = 6371;
+
+    const dLat = (lat2-lat1) * Math.PI / 180;
+    const dLon = (lon2-lon1) * Math.PI / 180;
+
+    const a =
+        Math.sin(dLat/2) * Math.sin(dLat/2) +
+        Math.cos(lat1*Math.PI/180) *
+        Math.cos(lat2*Math.PI/180) *
+        Math.sin(dLon/2) *
+        Math.sin(dLon/2);
+
+    return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)));
+}
+
+function formatTime(seconds){
+
+    const hrs = Math.floor(seconds / 3600);
+    const mins = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
+
+    if(hrs > 0){
+        return `${String(hrs).padStart(2,"0")}:${String(mins).padStart(2,"0")}:${String(secs).padStart(2,"0")}`;
+    }
+
+    return `${String(mins).padStart(2,"0")}:${String(secs).padStart(2,"0")}`;
+}
+
+function updatePosition(position){
+
+    errorElement.innerText = "";
+
+    const speedMS = position.coords.speed || 0;
+    const speedKMH = speedMS * 3.6;
+
+    speedElement.innerText = speedKMH.toFixed(1);
+
+    if(!isTracking) return;
+
+    if(position.coords.accuracy > 20) return;
+
+    if(lastPosition){
+
+        const distance = calculateDistance(
+            lastPosition.coords.latitude,
+            lastPosition.coords.longitude,
+            position.coords.latitude,
+            position.coords.longitude
+        );
+
+        if(speedMS > 1){
+            totalDistance += distance;
             distanceElement.innerText = totalDistance.toFixed(2);
         }
+    }
 
-        btnStart.addEventListener('click', () => {
-            if (!isTracking) {
-                isTracking = true;
-                btnStart.innerText = "PAUZE";
-                btnStart.classList.add('paused');
-                btnStop.disabled = false;
-                btnStop.style.opacity = "1";
-                
-                // Start timer
-                timerInterval = setInterval(() => {
-                    elapsedSeconds++;
-                    durationElement.innerText = formatTime(elapsedSeconds);
-                }, 1000);
+    lastPosition = position;
+}
 
-                // Start datasimulatie
-                simulationInterval = setInterval(simulateRiding, 1000);
-            } else {
-                isTracking = false;
-                btnStart.innerText = "HERSTART";
-                btnStart.classList.remove('paused');
-                clearInterval(timerInterval);
-                clearInterval(simulationInterval);
-                speedElement.innerText = "0.0";
-            }
-        });
+function handleError(error){
 
-        btnStop.addEventListener('click', () => {
-            isTracking = false;
-            clearInterval(timerInterval);
-            clearInterval(simulationInterval);
-            
-            if (totalDistance > 0 || elapsedSeconds > 0) {
-                saveRide(totalDistance.toFixed(2), formatTime(elapsedSeconds));
-            }
+    switch(error.code){
 
-            totalDistance = 0;
-            elapsedSeconds = 0;
-            
-            speedElement.innerText = "0.0";
-            distanceElement.innerText = "0.00";
-            durationElement.innerText = "00:00";
-            
-            btnStart.innerText = "START";
-            btnStart.classList.remove('paused');
-            btnStop.disabled = true;
-            btnStop.style.opacity = "0.5";
-        });
+        case error.PERMISSION_DENIED:
+            errorElement.innerText = "GPS-toegang geweigerd";
+            break;
 
-        function saveRide(distance, time) {
-            const date = new Date().toLocaleDateString('nl-NL', { day: '2-digit', month: '2-digit' });
-            const ride = { date, distance, time };
-            
-            let rides = JSON.parse(localStorage.getItem('rides')) || [];
-            rides.unshift(ride);
-            localStorage.setItem('rides', JSON.stringify(rides));
-            
-            renderHistory();
-        }
+        case error.POSITION_UNAVAILABLE:
+            errorElement.innerText = "GPS-signaal niet beschikbaar";
+            break;
 
-        function renderHistory() {
-            historyList.innerHTML = "";
-            let rides = JSON.parse(localStorage.getItem('rides')) || [];
-            if (rides.length === 0) {
-                historyList.innerHTML = `<li class="history-item" style="color:#8e8e93;">Nog geen ritten opgeslagen</li>`;
-                return;
-            }
-            rides.forEach(ride => {
-                const li = document.createElement('li');
-                li.className = 'history-item';
-                li.innerHTML = `<span>📅 ${ride.date}</span> <span>🏁 ${ride.distance} km</span> <span>⏱️ ${ride.time}</span>`;
-                historyList.appendChild(li);
-            });
-        }
+        case error.TIMEOUT:
+            errorElement.innerText = "GPS-timeout";
+            break;
 
+        default:
+            errorElement.innerText = "GPS-fout";
+    }
+}
+
+btnStart.addEventListener("click",()=>{
+
+    if(!isTracking){
+
+        isTracking = true;
+
+        btnStart.innerText = "PAUZE";
+        btnStart.classList.add("paused");
+
+        btnStop.disabled = false;
+        btnStop.style.opacity = "1";
+
+        timerInterval = setInterval(()=>{
+
+            elapsedSeconds++;
+
+            durationElement.innerText =
+                formatTime(elapsedSeconds);
+
+        },1000);
+
+    }else{
+
+        isTracking = false;
+
+        clearInterval(timerInterval);
+
+        btnStart.innerText = "HERSTART";
+        btnStart.classList.remove("paused");
+
+        lastPosition = null;
+
+        speedElement.innerText = "0.0";
+    }
+});
+
+btnStop.addEventListener("click",()=>{
+
+    isTracking = false;
+
+    clearInterval(timerInterval);
+
+    if(totalDistance > 0 || elapsedSeconds > 0){
+
+        saveRide(
+            totalDistance.toFixed(2),
+            formatTime(elapsedSeconds)
+        );
+    }
+
+    totalDistance = 0;
+    elapsedSeconds = 0;
+    lastPosition = null;
+
+    speedElement.innerText = "0.0";
+    distanceElement.innerText = "0.00";
+    durationElement.innerText = "00:00";
+
+    btnStart.innerText = "START";
+    btnStart.classList.remove("paused");
+
+    btnStop.disabled = true;
+    btnStop.style.opacity = ".5";
+});
+
+function saveRide(distance,time){
+
+    const date = new Date().toLocaleDateString("nl-NL");
+
+    const ride = {
+        date,
+        distance,
+        time
+    };
+
+    let rides =
+        JSON.parse(localStorage.getItem("rides")) || [];
+
+    rides.unshift(ride);
+
+    localStorage.setItem(
+        "rides",
+        JSON.stringify(rides)
+    );
+
+    renderHistory();
+}
+
+function renderHistory(){
+
+    historyList.innerHTML = "";
+
+    const rides =
+        JSON.parse(localStorage.getItem("rides")) || [];
+
+    if(rides.length === 0){
+
+        historyList.innerHTML =
+        `<li class="history-item" style="color:#8e8e93;">
+        Nog geen ritten opgeslagen
+        </li>`;
+
+        return;
+    }
+
+    rides.forEach(ride=>{
+
+        const li = document.createElement("li");
+
+        li.className = "history-item";
+
+        li.innerHTML =
+        `<span>📅 ${ride.date}</span>
+         <span>🏁 ${ride.distance} km</span>
+         <span>⏱️ ${ride.time}</span>`;
+
+        historyList.appendChild(li);
+    });
+}
+
+btnClearHistory.addEventListener("click",()=>{
+
+    if(confirm("Alle ritten verwijderen?")){
+
+        localStorage.removeItem("rides");
         renderHistory();
-    </script>
+    }
+});
+
+btnExport.addEventListener("click",()=>{
+
+    const rides =
+        localStorage.getItem("rides") || "[]";
+
+    const blob =
+        new Blob([rides], {type:"application/json"});
+
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+
+    a.href = url;
+
+    a.download =
+    `fietscomputer_backup_${new Date()
+    .toISOString()
+    .slice(0,10)}.json`;
+
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+
+    URL.revokeObjectURL(url);
+});
+
+btnImportTrigger.addEventListener("click",()=>{
+
+    fileInput.click();
+});
+
+fileInput.addEventListener("change",(event)=>{
+
+    const file = event.target.files[0];
+
+    if(!file) return;
+
+    const reader = new FileReader();
+
+    reader.onload = function(e){
+
+        try{
+
+            const imported =
+                JSON.parse(e.target.result);
+
+            if(Array.isArray(imported)){
+
+                localStorage.setItem(
+                    "rides",
+                    JSON.stringify(imported)
+                );
+
+                renderHistory();
+
+                alert("Backup geïmporteerd");
+
+            }else{
+
+                alert("Ongeldig bestand");
+            }
+
+        }catch{
+
+            alert("Fout bij lezen bestand");
+        }
+    };
+
+    reader.readAsText(file);
+});
+
+if("geolocation" in navigator){
+
+    navigator.geolocation.watchPosition(
+        updatePosition,
+        handleError,
+        {
+            enableHighAccuracy:true,
+            timeout:10000,
+            maximumAge:0
+        }
+    );
+
+}else{
+
+    errorElement.innerText =
+    "GPS niet ondersteund";
+}
+
+renderHistory();
+
+</script>
+
 </body>
 </html>
