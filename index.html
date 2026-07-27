@@ -239,9 +239,9 @@ let lastPosition = null;
 let timerInterval = null;
 let wakeLock = null;
 
-// Correcte Haversine-formule voor afstandsberekening (in kilometers)
+// Haversine-formule voor nauwkeurige afstandsberekening (in km)
 function calculateDistance(lat1, lon1, lat2, lon2) {
-    const R = 6371; // Straal van de aarde in km
+    const R = 6371;
     const dLat = (lat2 - lat1) * Math.PI / 180;
     const dLon = (lon2 - lon1) * Math.PI / 180;
 
@@ -265,14 +265,14 @@ function formatTime(seconds) {
     return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
 }
 
-// Voorkom dat het scherm uitgaat tijdens het fietsen
+// Scherm actief houden tijdens de rit
 async function requestWakeLock() {
     try {
         if ('wakeLock' in navigator) {
             wakeLock = await navigator.wakeLock.request('screen');
         }
     } catch (err) {
-        console.warn("Wake Lock niet ondersteund of mislukt:", err);
+        console.warn("Wake Lock mislukt:", err);
     }
 }
 
@@ -281,6 +281,13 @@ function releaseWakeLock() {
         wakeLock.release().then(() => { wakeLock = null; });
     }
 }
+
+// Schermvergrendeling herstellen als je terugkeert naar de app
+document.addEventListener("visibilitychange", async () => {
+    if (wakeLock !== null && document.visibilityState === "visible" && isTracking) {
+        await requestWakeLock();
+    }
+});
 
 function updatePosition(position) {
     errorElement.innerText = "";
@@ -292,7 +299,7 @@ function updatePosition(position) {
 
     if (!isTracking) return;
 
-    // Negeer hele onnauwkeurige GPS-metingen (> 30 meter)
+    // Negeer hele onnauwkeurige GPS-metingen (> 30 m)
     if (position.coords.accuracy > 30) return;
 
     if (lastPosition) {
@@ -303,7 +310,7 @@ function updatePosition(position) {
             position.coords.longitude
         );
 
-        // Filter hele kleine GPS-schommelingen bij stilstand eruit (~1 km/u drempel)
+        // Alleen afstand toevoegen als je echt beweegt (> 1 km/u)
         if (speedMS > 0.3) {
             totalDistance += distance;
             distanceElement.innerText = totalDistance.toFixed(2);
@@ -388,7 +395,6 @@ btnStop.addEventListener("click", () => {
 
 function saveRide(distance, time) {
     const date = new Date().toLocaleDateString("nl-NL");
-
     const ride = { date, distance, time };
 
     let rides = JSON.parse(localStorage.getItem("rides")) || [];
@@ -400,7 +406,6 @@ function saveRide(distance, time) {
 
 function renderHistory() {
     historyList.innerHTML = "";
-
     const rides = JSON.parse(localStorage.getItem("rides")) || [];
 
     if (rides.length === 0) {
@@ -463,7 +468,7 @@ fileInput.addEventListener("change", (event) => {
         } catch {
             alert("Fout bij lezen bestand");
         }
-        event.target.value = ""; // Reset de invoer
+        event.target.value = "";
     };
 
     reader.readAsText(file);
@@ -486,7 +491,5 @@ if ("geolocation" in navigator) {
 renderHistory();
 </script>
 
-</body>
-</html>
 </body>
 </html>
