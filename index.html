@@ -10,167 +10,167 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
 <style>
-body{
-    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
-    background:#000;
-    color:#fff;
-    margin:0;
-    padding:20px;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    min-height:100vh;
-    box-sizing:border-box;
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: #000;
+    color: #fff;
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    box-sizing: border-box;
 }
 
-#error-message{
-    color:#ff3b30;
-    font-weight:bold;
-    text-align:center;
-    margin-bottom:10px;
-    min-height:20px;
-    font-size:14px;
+#error-message {
+    color: #ff3b30;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 10px;
+    min-height: 20px;
+    font-size: 14px;
 }
 
-#speed-container{
-    margin-top:20px;
-    text-align:center;
+#speed-container {
+    margin-top: 20px;
+    text-align: center;
 }
 
-#speed{
-    font-size:110px;
-    font-weight:800;
-    line-height:1;
-    color:#34c759;
+#speed {
+    font-size: 110px;
+    font-weight: 800;
+    line-height: 1;
+    color: #34c759;
 }
 
-.unit{
-    font-size:20px;
-    color:#8e8e93;
-    text-transform:uppercase;
-    letter-spacing:2px;
+.unit {
+    font-size: 20px;
+    color: #8e8e93;
+    text-transform: uppercase;
+    letter-spacing: 2px;
 }
 
-#stats-container{
-    display:flex;
-    width:100%;
-    max-width:400px;
-    margin:30px 0;
-    background:#1c1c1e;
-    border-radius:12px;
-    padding:15px 0;
+#stats-container {
+    display: flex;
+    width: 100%;
+    max-width: 400px;
+    margin: 30px 0;
+    background: #1c1c1e;
+    border-radius: 12px;
+    padding: 15px 0;
 }
 
-.stat-box{
-    flex:1;
-    text-align:center;
-    border-right:1px solid #2c2c2e;
+.stat-box {
+    flex: 1;
+    text-align: center;
+    border-right: 1px solid #2c2c2e;
 }
 
-.stat-box:last-child{
-    border-right:none;
+.stat-box:last-child {
+    border-right: none;
 }
 
-.stat-value{
-    font-size:26px;
-    font-weight:600;
+.stat-value {
+    font-size: 26px;
+    font-weight: 600;
 }
 
-.controls{
-    display:flex;
-    gap:15px;
-    width:100%;
-    max-width:400px;
-    margin-bottom:20px;
+.controls {
+    display: flex;
+    gap: 15px;
+    width: 100%;
+    max-width: 400px;
+    margin-bottom: 20px;
 }
 
-button{
-    flex:1;
-    border:none;
-    padding:15px;
-    font-size:18px;
-    font-weight:bold;
-    border-radius:12px;
-    cursor:pointer;
+button {
+    flex: 1;
+    border: none;
+    padding: 15px;
+    font-size: 18px;
+    font-weight: bold;
+    border-radius: 12px;
+    cursor: pointer;
 }
 
-#btn-start{
-    background:#34c759;
-    color:white;
+#btn-start {
+    background: #34c759;
+    color: white;
 }
 
-#btn-start.paused{
-    background:#ffcc00;
-    color:black;
+#btn-start.paused {
+    background: #ffcc00;
+    color: black;
 }
 
-#btn-stop{
-    background:#ff3b30;
-    color:white;
+#btn-stop {
+    background: #ff3b30;
+    color: white;
 }
 
-#history-container{
-    width:100%;
-    max-width:400px;
-    background:#1c1c1e;
-    border-radius:12px;
-    padding:15px;
-    box-sizing:border-box;
-    margin-bottom:20px;
+#history-container {
+    width: 100%;
+    max-width: 400px;
+    background: #1c1c1e;
+    border-radius: 12px;
+    padding: 15px;
+    box-sizing: border-box;
+    margin-bottom: 20px;
 }
 
-.history-header{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    border-bottom:1px solid #2c2c2e;
-    padding-bottom:10px;
+.history-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #2c2c2e;
+    padding-bottom: 10px;
 }
 
-.history-list{
-    list-style:none;
-    padding:0;
-    margin:0;
-    max-height:250px;
-    overflow-y:auto;
+.history-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    max-height: 250px;
+    overflow-y: auto;
 }
 
-.history-item{
-    display:flex;
-    justify-content:space-between;
-    padding:10px 0;
-    border-bottom:1px solid #2c2c2e;
-    font-size:14px;
+.history-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid #2c2c2e;
+    font-size: 14px;
 }
 
-.history-item:last-child{
-    border-bottom:none;
+.history-item:last-child {
+    border-bottom: none;
 }
 
-#btn-clear-history{
-    background:none;
-    color:#ff3b30;
-    border:none;
-    padding:0;
-    font-size:14px;
+#btn-clear-history {
+    background: none;
+    color: #ff3b30;
+    border: none;
+    padding: 0;
+    font-size: 14px;
 }
 
-.backup-controls{
-    display:flex;
-    gap:10px;
-    width:100%;
-    max-width:400px;
+.backup-controls {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+    max-width: 400px;
 }
 
-.btn-backup{
-    background:#2c2c2e;
-    color:#0a84ff;
-    font-size:14px;
-    padding:10px;
+.btn-backup {
+    background: #2c2c2e;
+    color: #0a84ff;
+    font-size: 14px;
+    padding: 10px;
 }
 
-#file-input{
-    display:none;
+#file-input {
+    display: none;
 }
 </style>
 </head>
@@ -203,7 +203,7 @@ button{
 
 <div id="history-container">
     <div class="history-header">
-        <h3>Ritgeschiedenis</h3>
+        <h3 style="margin:0;">Ritgeschiedenis</h3>
         <button id="btn-clear-history">Wis alles</button>
     </div>
 
@@ -217,7 +217,6 @@ button{
 </div>
 
 <script>
-
 const speedElement = document.getElementById("speed");
 const distanceElement = document.getElementById("distance");
 const durationElement = document.getElementById("duration");
@@ -238,51 +237,65 @@ let elapsedSeconds = 0;
 let isTracking = false;
 let lastPosition = null;
 let timerInterval = null;
+let wakeLock = null;
 
-function calculateDistance(lat1, lon1, lat2, lon2){
-    const R = 6371;
+// Correcte Haversine-formule voor afstandsberekening (in kilometers)
+function calculateDistance(lat1, lon1, lat2, lon2) {
+    const R = 6371; // Straal van de aarde in km
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
 
-    const dLat = (lat2-lat1) * Math.PI / 180;
-    const dLon = (lon2-lon1) * Math.PI / 180;
+    const a = 
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
+        Math.sin(dLon / 2) * Math.sin(dLon / 2);
 
-    const a =
-        Math.sin(dLat/2) * Math.sin(dLat/2) +
-        Math.cos(lat1*Math.PI/180) *
-        Math.cos(lat2*Math.PI/180) *
-        Math.sin(dLon/2) *
-        Math.sin(dLon/2);
-
-    return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)));
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
 }
 
-function formatTime(seconds){
-
+function formatTime(seconds) {
     const hrs = Math.floor(seconds / 3600);
     const mins = Math.floor((seconds % 3600) / 60);
     const secs = seconds % 60;
 
-    if(hrs > 0){
-        return `${String(hrs).padStart(2,"0")}:${String(mins).padStart(2,"0")}:${String(secs).padStart(2,"0")}`;
+    if (hrs > 0) {
+        return `${String(hrs).padStart(2, "0")}:${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
     }
-
-    return `${String(mins).padStart(2,"0")}:${String(secs).padStart(2,"0")}`;
+    return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
 }
 
-function updatePosition(position){
+// Voorkom dat het scherm uitgaat tijdens het fietsen
+async function requestWakeLock() {
+    try {
+        if ('wakeLock' in navigator) {
+            wakeLock = await navigator.wakeLock.request('screen');
+        }
+    } catch (err) {
+        console.warn("Wake Lock niet ondersteund of mislukt:", err);
+    }
+}
 
+function releaseWakeLock() {
+    if (wakeLock) {
+        wakeLock.release().then(() => { wakeLock = null; });
+    }
+}
+
+function updatePosition(position) {
     errorElement.innerText = "";
 
-    const speedMS = position.coords.speed || 0;
+    const speedMS = (position.coords.speed !== null && position.coords.speed >= 0) ? position.coords.speed : 0;
     const speedKMH = speedMS * 3.6;
 
     speedElement.innerText = speedKMH.toFixed(1);
 
-    if(!isTracking) return;
+    if (!isTracking) return;
 
-    if(position.coords.accuracy > 20) return;
+    // Negeer hele onnauwkeurige GPS-metingen (> 30 meter)
+    if (position.coords.accuracy > 30) return;
 
-    if(lastPosition){
-
+    if (lastPosition) {
         const distance = calculateDistance(
             lastPosition.coords.latitude,
             lastPosition.coords.longitude,
@@ -290,7 +303,8 @@ function updatePosition(position){
             position.coords.longitude
         );
 
-        if(speedMS > 1){
+        // Filter hele kleine GPS-schommelingen bij stilstand eruit (~1 km/u drempel)
+        if (speedMS > 0.3) {
             totalDistance += distance;
             distanceElement.innerText = totalDistance.toFixed(2);
         }
@@ -299,31 +313,24 @@ function updatePosition(position){
     lastPosition = position;
 }
 
-function handleError(error){
-
-    switch(error.code){
-
+function handleError(error) {
+    switch (error.code) {
         case error.PERMISSION_DENIED:
             errorElement.innerText = "GPS-toegang geweigerd";
             break;
-
         case error.POSITION_UNAVAILABLE:
             errorElement.innerText = "GPS-signaal niet beschikbaar";
             break;
-
         case error.TIMEOUT:
             errorElement.innerText = "GPS-timeout";
             break;
-
         default:
             errorElement.innerText = "GPS-fout";
     }
 }
 
-btnStart.addEventListener("click",()=>{
-
-    if(!isTracking){
-
+btnStart.addEventListener("click", () => {
+    if (!isTracking) {
         isTracking = true;
 
         btnStart.innerText = "PAUZE";
@@ -332,38 +339,32 @@ btnStart.addEventListener("click",()=>{
         btnStop.disabled = false;
         btnStop.style.opacity = "1";
 
-        timerInterval = setInterval(()=>{
+        requestWakeLock();
 
+        timerInterval = setInterval(() => {
             elapsedSeconds++;
+            durationElement.innerText = formatTime(elapsedSeconds);
+        }, 1000);
 
-            durationElement.innerText =
-                formatTime(elapsedSeconds);
-
-        },1000);
-
-    }else{
-
+    } else {
         isTracking = false;
-
         clearInterval(timerInterval);
+        releaseWakeLock();
 
         btnStart.innerText = "HERSTART";
         btnStart.classList.remove("paused");
 
         lastPosition = null;
-
         speedElement.innerText = "0.0";
     }
 });
 
-btnStop.addEventListener("click",()=>{
-
+btnStop.addEventListener("click", () => {
     isTracking = false;
-
     clearInterval(timerInterval);
+    releaseWakeLock();
 
-    if(totalDistance > 0 || elapsedSeconds > 0){
-
+    if (totalDistance > 0 || elapsedSeconds > 0) {
         saveRide(
             totalDistance.toFixed(2),
             formatTime(elapsedSeconds)
@@ -385,88 +386,51 @@ btnStop.addEventListener("click",()=>{
     btnStop.style.opacity = ".5";
 });
 
-function saveRide(distance,time){
-
+function saveRide(distance, time) {
     const date = new Date().toLocaleDateString("nl-NL");
 
-    const ride = {
-        date,
-        distance,
-        time
-    };
+    const ride = { date, distance, time };
 
-    let rides =
-        JSON.parse(localStorage.getItem("rides")) || [];
-
+    let rides = JSON.parse(localStorage.getItem("rides")) || [];
     rides.unshift(ride);
 
-    localStorage.setItem(
-        "rides",
-        JSON.stringify(rides)
-    );
-
+    localStorage.setItem("rides", JSON.stringify(rides));
     renderHistory();
 }
 
-function renderHistory(){
-
+function renderHistory() {
     historyList.innerHTML = "";
 
-    const rides =
-        JSON.parse(localStorage.getItem("rides")) || [];
+    const rides = JSON.parse(localStorage.getItem("rides")) || [];
 
-    if(rides.length === 0){
-
-        historyList.innerHTML =
-        `<li class="history-item" style="color:#8e8e93;">
-        Nog geen ritten opgeslagen
-        </li>`;
-
+    if (rides.length === 0) {
+        historyList.innerHTML = `<li class="history-item" style="color:#8e8e93;">Nog geen ritten opgeslagen</li>`;
         return;
     }
 
-    rides.forEach(ride=>{
-
+    rides.forEach(ride => {
         const li = document.createElement("li");
-
         li.className = "history-item";
-
-        li.innerHTML =
-        `<span>📅 ${ride.date}</span>
-         <span>🏁 ${ride.distance} km</span>
-         <span>⏱️ ${ride.time}</span>`;
-
+        li.innerHTML = `<span>📅 ${ride.date}</span><span>🏁 ${ride.distance} km</span><span>⏱️ ${ride.time}</span>`;
         historyList.appendChild(li);
     });
 }
 
-btnClearHistory.addEventListener("click",()=>{
-
-    if(confirm("Alle ritten verwijderen?")){
-
+btnClearHistory.addEventListener("click", () => {
+    if (confirm("Alle ritten verwijderen?")) {
         localStorage.removeItem("rides");
         renderHistory();
     }
 });
 
-btnExport.addEventListener("click",()=>{
-
-    const rides =
-        localStorage.getItem("rides") || "[]";
-
-    const blob =
-        new Blob([rides], {type:"application/json"});
-
+btnExport.addEventListener("click", () => {
+    const rides = localStorage.getItem("rides") || "[]";
+    const blob = new Blob([rides], { type: "application/json" });
     const url = URL.createObjectURL(blob);
 
     const a = document.createElement("a");
-
     a.href = url;
-
-    a.download =
-    `fietscomputer_backup_${new Date()
-    .toISOString()
-    .slice(0,10)}.json`;
+    a.download = `fietscomputer_backup_${new Date().toISOString().slice(0, 10)}.json`;
 
     document.body.appendChild(a);
     a.click();
@@ -475,72 +439,54 @@ btnExport.addEventListener("click",()=>{
     URL.revokeObjectURL(url);
 });
 
-btnImportTrigger.addEventListener("click",()=>{
-
+btnImportTrigger.addEventListener("click", () => {
     fileInput.click();
 });
 
-fileInput.addEventListener("change",(event)=>{
-
+fileInput.addEventListener("change", (event) => {
     const file = event.target.files[0];
-
-    if(!file) return;
+    if (!file) return;
 
     const reader = new FileReader();
 
-    reader.onload = function(e){
+    reader.onload = function(e) {
+        try {
+            const imported = JSON.parse(e.target.result);
 
-        try{
-
-            const imported =
-                JSON.parse(e.target.result);
-
-            if(Array.isArray(imported)){
-
-                localStorage.setItem(
-                    "rides",
-                    JSON.stringify(imported)
-                );
-
+            if (Array.isArray(imported)) {
+                localStorage.setItem("rides", JSON.stringify(imported));
                 renderHistory();
-
                 alert("Backup geïmporteerd");
-
-            }else{
-
+            } else {
                 alert("Ongeldig bestand");
             }
-
-        }catch{
-
+        } catch {
             alert("Fout bij lezen bestand");
         }
+        event.target.value = ""; // Reset de invoer
     };
 
     reader.readAsText(file);
 });
 
-if("geolocation" in navigator){
-
+if ("geolocation" in navigator) {
     navigator.geolocation.watchPosition(
         updatePosition,
         handleError,
         {
-            enableHighAccuracy:true,
-            timeout:10000,
-            maximumAge:0
+            enableHighAccuracy: true,
+            timeout: 10000,
+            maximumAge: 0
         }
     );
-
-}else{
-
-    errorElement.innerText =
-    "GPS niet ondersteund";
+} else {
+    errorElement.innerText = "GPS niet ondersteund";
 }
 
 renderHistory();
-
 </script>
 
+</body>
+</html>
 </body>
 </html>
