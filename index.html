@@ -217,6 +217,7 @@ button {
 </div>
 
 <script>
+// Elements
 const speedElement = document.getElementById("speed");
 const distanceElement = document.getElementById("distance");
 const durationElement = document.getElementById("duration");
@@ -237,9 +238,32 @@ let elapsedSeconds = 0;
 let isTracking = false;
 let lastPosition = null;
 let timerInterval = null;
-let wakeLock = null;
 
-// Haversine-formule voor nauwkeurige afstandsberekening (in km)
+// TRUCK VOOR SAFARI: Onzichtbare video die het scherm AAN houdt
+const wakeVideo = document.createElement("video");
+wakeVideo.setAttribute("playsinline", "");
+wakeVideo.setAttribute("loop", "");
+wakeVideo.style.display = "none";
+// Een lege, hele korte basistrack
+wakeVideo.src = "data:video/mp4;base64,AAAAIGZ0eXBpc29tAAACAGlzb21pc28yYXZjMW1wNDEAAAAIZnJlZQAAAAA="; 
+
+async function keepScreenAwake() {
+    try {
+        // Methode 1: Moderne Wake Lock API
+        if ('wakeLock' in navigator) {
+            await navigator.wakeLock.request('screen');
+        } 
+        // Methode 2: Safari Video Fallback
+        wakeVideo.play().catch(() => {});
+    } catch (err) {
+        console.log("Wake lock actief via video-fallback");
+    }
+}
+
+function allowScreenSleep() {
+    wakeVideo.pause();
+}
+
 function calculateDistance(lat1, lon1, lat2, lon2) {
     const R = 6371;
     const dLat = (lat2 - lat1) * Math.PI / 180;
@@ -265,30 +289,6 @@ function formatTime(seconds) {
     return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
 }
 
-// Scherm actief houden tijdens de rit
-async function requestWakeLock() {
-    try {
-        if ('wakeLock' in navigator) {
-            wakeLock = await navigator.wakeLock.request('screen');
-        }
-    } catch (err) {
-        console.warn("Wake Lock mislukt:", err);
-    }
-}
-
-function releaseWakeLock() {
-    if (wakeLock) {
-        wakeLock.release().then(() => { wakeLock = null; });
-    }
-}
-
-// Schermvergrendeling herstellen als je terugkeert naar de app
-document.addEventListener("visibilitychange", async () => {
-    if (wakeLock !== null && document.visibilityState === "visible" && isTracking) {
-        await requestWakeLock();
-    }
-});
-
 function updatePosition(position) {
     errorElement.innerText = "";
 
@@ -299,7 +299,6 @@ function updatePosition(position) {
 
     if (!isTracking) return;
 
-    // Negeer hele onnauwkeurige GPS-metingen (> 30 m)
     if (position.coords.accuracy > 30) return;
 
     if (lastPosition) {
@@ -310,7 +309,6 @@ function updatePosition(position) {
             position.coords.longitude
         );
 
-        // Alleen afstand toevoegen als je echt beweegt (> 1 km/u)
         if (speedMS > 0.3) {
             totalDistance += distance;
             distanceElement.innerText = totalDistance.toFixed(2);
@@ -346,7 +344,8 @@ btnStart.addEventListener("click", () => {
         btnStop.disabled = false;
         btnStop.style.opacity = "1";
 
-        requestWakeLock();
+        // Activeer scherm-AAN beveiliging bij het drukken op START
+        keepScreenAwake();
 
         timerInterval = setInterval(() => {
             elapsedSeconds++;
@@ -356,7 +355,7 @@ btnStart.addEventListener("click", () => {
     } else {
         isTracking = false;
         clearInterval(timerInterval);
-        releaseWakeLock();
+        allowScreenSleep();
 
         btnStart.innerText = "HERSTART";
         btnStart.classList.remove("paused");
@@ -369,7 +368,7 @@ btnStart.addEventListener("click", () => {
 btnStop.addEventListener("click", () => {
     isTracking = false;
     clearInterval(timerInterval);
-    releaseWakeLock();
+    allowScreenSleep();
 
     if (totalDistance > 0 || elapsedSeconds > 0) {
         saveRide(
@@ -390,7 +389,7 @@ btnStop.addEventListener("click", () => {
     btnStart.classList.remove("paused");
 
     btnStop.disabled = true;
-    btnStop.style.opacity = ".5";
+    btnStop.style.opacity = ".4";
 });
 
 function saveRide(distance, time) {
@@ -409,7 +408,7 @@ function renderHistory() {
     const rides = JSON.parse(localStorage.getItem("rides")) || [];
 
     if (rides.length === 0) {
-        historyList.innerHTML = `<li class="history-item" style="color:#8e8e93;">Nog geen ritten opgeslagen</li>`;
+        historyList.innerHTML = `<li class="history-item" style="color:var(--text-muted);">Nog geen ritten opgeslagen</li>`;
         return;
     }
 
