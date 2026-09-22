@@ -1,494 +1,734 @@
 <!DOCTYPE html>
 <html lang="nl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Fietscomputer Pro - Always On</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- FontAwesome Pictogrammen -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 
-<title>Fietscomputer Live</title>
+    <!-- Google Fonts Teko & Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=Teko:wght@500;600;700&display=swap" rel="stylesheet">
 
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-
-<style>
-body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    background: #000;
-    color: #fff;
-    margin: 0;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    min-height: 100vh;
-    box-sizing: border-box;
-}
-
-#error-message {
-    color: #ff3b30;
-    font-weight: bold;
-    text-align: center;
-    margin-bottom: 10px;
-    min-height: 20px;
-    font-size: 14px;
-}
-
-#speed-container {
-    margin-top: 20px;
-    text-align: center;
-}
-
-#speed {
-    font-size: 110px;
-    font-weight: 800;
-    line-height: 1;
-    color: #34c759;
-}
-
-.unit {
-    font-size: 20px;
-    color: #8e8e93;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-}
-
-#stats-container {
-    display: flex;
-    width: 100%;
-    max-width: 400px;
-    margin: 30px 0;
-    background: #1c1c1e;
-    border-radius: 12px;
-    padding: 15px 0;
-}
-
-.stat-box {
-    flex: 1;
-    text-align: center;
-    border-right: 1px solid #2c2c2e;
-}
-
-.stat-box:last-child {
-    border-right: none;
-}
-
-.stat-value {
-    font-size: 26px;
-    font-weight: 600;
-}
-
-.controls {
-    display: flex;
-    gap: 15px;
-    width: 100%;
-    max-width: 400px;
-    margin-bottom: 20px;
-}
-
-button {
-    flex: 1;
-    border: none;
-    padding: 15px;
-    font-size: 18px;
-    font-weight: bold;
-    border-radius: 12px;
-    cursor: pointer;
-}
-
-#btn-start {
-    background: #34c759;
-    color: white;
-}
-
-#btn-start.paused {
-    background: #ffcc00;
-    color: black;
-}
-
-#btn-stop {
-    background: #ff3b30;
-    color: white;
-}
-
-#history-container {
-    width: 100%;
-    max-width: 400px;
-    background: #1c1c1e;
-    border-radius: 12px;
-    padding: 15px;
-    box-sizing: border-box;
-    margin-bottom: 20px;
-}
-
-.history-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid #2c2c2e;
-    padding-bottom: 10px;
-}
-
-.history-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    max-height: 250px;
-    overflow-y: auto;
-}
-
-.history-item {
-    display: flex;
-    justify-content: space-between;
-    padding: 10px 0;
-    border-bottom: 1px solid #2c2c2e;
-    font-size: 14px;
-}
-
-.history-item:last-child {
-    border-bottom: none;
-}
-
-#btn-clear-history {
-    background: none;
-    color: #ff3b30;
-    border: none;
-    padding: 0;
-    font-size: 14px;
-}
-
-.backup-controls {
-    display: flex;
-    gap: 10px;
-    width: 100%;
-    max-width: 400px;
-}
-
-.btn-backup {
-    background: #2c2c2e;
-    color: #0a84ff;
-    font-size: 14px;
-    padding: 10px;
-}
-
-#file-input {
-    display: none;
-}
-</style>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            touch-action: manipulation;
+            user-select: none;
+            -webkit-user-select: none;
+            background-color: #030712; /* OLED Pitch Black */
+            color: #f9fafb;
+        }
+        .digital-font {
+            font-family: 'Teko', sans-serif;
+            letter-spacing: 0.02em;
+            line-height: 0.85;
+        }
+        .glass-panel {
+            background-color: rgba(17, 24, 39, var(--glass-opacity, 0.85));
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        .pulse-emerald {
+            animation: pulse-emerald-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse-emerald-ring {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(1.08); }
+        }
+        /* Custom scrollbars */
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #374151;
+            border-radius: 4px;
+        }
+    </style>
 </head>
+<body class="h-screen w-screen flex flex-col justify-between overflow-hidden bg-gray-950 text-white selection:bg-emerald-500 selection:text-black">
 
-<body>
+    <!-- Onzichtbare HTML5 video-loop fallback voor iOS/Safari scherm-aan beveiliging -->
+    <video id="noSleepVideo" loop playsinline muted class="hidden pointer-events-none w-1 h-1 opacity-0 absolute -z-50">
+        <!-- Kleine, geldige base64 H.264 video buffer van 1 frame -->
+        <source src="data:video/mp4;base64,AAAAIGZ0eXBpc29tAAACAGlzb21pc28ybXA0MQAAAAhmcmVlAAAAAG1kYXQAAAAAAAABAAAAAAA=" type="video/mp4">
+    </video>
 
-<div id="error-message">Wachten op GPS-signaal...</div>
+    <!-- Top Header Bar -->
+    <header class="bg-gray-900/90 border-b border-gray-800 px-4 py-2.5 flex justify-between items-center z-20 shadow-md">
+        <div class="flex items-center gap-2">
+            <i class="fa-solid fa-bicycle text-emerald-400 text-xl"></i>
+            <span class="font-black tracking-wider text-sm text-gray-100 uppercase">VELO<span class="text-emerald-400">PRO</span></span>
+        </div>
 
-<div id="speed-container">
-    <div id="speed">0.0</div>
-    <div class="unit">km/u</div>
-</div>
+        <!-- Status Badges -->
+        <div class="flex items-center gap-2 sm:gap-3">
+            <!-- Screen Always On Status Badge -->
+            <div id="wakeLockBadge" class="flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-gray-800 text-gray-400 border border-gray-700 font-semibold transition-all">
+                <i id="wakeLockIcon" class="fa-solid fa-lock-open text-[10px]"></i>
+                <span id="wakeLockText">Scherm: UITE</span>
+            </div>
 
-<div id="stats-container">
-    <div class="stat-box">
-        <div id="distance" class="stat-value">0.00</div>
-        <div class="unit" style="font-size:11px;">Afstand (km)</div>
+            <!-- GPS Status Indicator -->
+            <div id="gpsBadge" class="flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/30">
+                <span class="relative flex h-2 w-2">
+                  <span id="gpsPulse" class="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                  <span id="gpsDot" class="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
+                </span>
+                <span id="gpsStatusText" class="font-medium">Zoeken...</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Dashboard Body -->
+    <main class="flex-1 flex flex-col justify-between p-3 sm:p-5 gap-3 overflow-y-auto max-w-4xl mx-auto w-full">
+
+        <!-- Main Display: Current Speed (Large OLED Numerals) -->
+        <div class="glass-panel border border-gray-800 rounded-3xl p-5 flex flex-col justify-between items-center shadow-2xl relative overflow-hidden my-auto flex-1 min-h-[220px]">
+            
+            <div class="w-full flex justify-between items-center text-xs font-semibold text-gray-400 uppercase tracking-widest border-b border-gray-800/80 pb-2">
+                <span class="flex items-center gap-1.5">
+                    <i class="fa-solid fa-gauge-high text-emerald-400"></i> Huidige Snelheid
+                </span>
+                <span id="fallbackNotice" class="hidden text-[10px] text-amber-400 bg-amber-400/10 px-2 py-0.5 rounded border border-amber-500/20">
+                    <i class="fa-solid fa-shield-halved"></i> iOS Fallback
+                </span>
+            </div>
+            
+            <!-- Large Speed Readout -->
+            <div class="flex items-baseline justify-center my-auto pt-2">
+                <span id="speedValue" class="digital-font text-[110px] sm:text-[140px] md:text-[170px] font-bold text-white tracking-tight leading-none drop-shadow-md">0.0</span>
+                <span class="text-2xl sm:text-3xl font-black text-emerald-400 ml-2">KM/H</span>
+            </div>
+
+            <!-- GPS Precision Metrics -->
+            <div class="w-full flex justify-between items-center text-xs text-gray-400 pt-2 border-t border-gray-800/80 px-2">
+                <div>Nauwkeurigheid: <span id="accuracyVal" class="text-gray-200 font-mono font-semibold">--</span> m</div>
+                <div>Koers: <span id="headingVal" class="text-gray-200 font-mono font-semibold">--</span></div>
+            </div>
+        </div>
+
+        <!-- Secondary Grid: Distance, Elapsed Time, Average Speed -->
+        <div class="grid grid-cols-3 gap-2 sm:gap-3">
+            <!-- Total Distance -->
+            <div class="glass-panel border border-gray-800 rounded-2xl p-3 flex flex-col justify-between">
+                <span class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Afstand</span>
+                <div class="my-1 flex items-baseline gap-1">
+                    <span id="distanceVal" class="digital-font text-4xl sm:text-5xl font-bold text-gray-100">0.00</span>
+                    <span class="text-xs font-bold text-emerald-400">KM</span>
+                </div>
+                <span class="text-[10px] text-gray-500">Totale rit</span>
+            </div>
+
+            <!-- Elapsed Time -->
+            <div class="glass-panel border border-gray-800 rounded-2xl p-3 flex flex-col justify-between">
+                <span class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Rittijd</span>
+                <div class="my-1">
+                    <span id="timerVal" class="digital-font text-3xl sm:text-4xl font-bold text-emerald-400 tracking-wider">00:00:00</span>
+                </div>
+                <span id="pauseLabel" class="text-[10px] text-gray-500 font-medium">Gestopt</span>
+            </div>
+
+            <!-- Average Speed -->
+            <div class="glass-panel border border-gray-800 rounded-2xl p-3 flex flex-col justify-between">
+                <span class="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Gemiddeld</span>
+                <div class="my-1 flex items-baseline gap-1">
+                    <span id="avgSpeedVal" class="digital-font text-4xl sm:text-5xl font-bold text-gray-100">0.0</span>
+                    <span class="text-xs font-bold text-emerald-400">KM/H</span>
+                </div>
+                <span class="text-[10px] text-gray-500">Gem. snelheid</span>
+            </div>
+        </div>
+
+        <!-- Tertiary Grid: Max Speed, Altitude, Elevation Gain -->
+        <div class="grid grid-cols-3 gap-2 sm:gap-3">
+            <!-- Max Speed -->
+            <div class="glass-panel border border-gray-800 rounded-xl p-2.5 flex flex-col justify-between">
+                <span class="text-[10px] font-bold text-gray-400 uppercase">Max Snelheid</span>
+                <div class="mt-1 flex items-baseline gap-1">
+                    <span id="maxSpeedVal" class="digital-font text-2xl sm:text-3xl font-bold text-gray-200">0.0</span>
+                    <span class="text-[10px] font-bold text-gray-400">KM/H</span>
+                </div>
+            </div>
+
+            <!-- Current Altitude -->
+            <div class="glass-panel border border-gray-800 rounded-xl p-2.5 flex flex-col justify-between">
+                <span class="text-[10px] font-bold text-gray-400 uppercase">Hoogte</span>
+                <div class="mt-1 flex items-baseline gap-1">
+                    <span id="altitudeVal" class="digital-font text-2xl sm:text-3xl font-bold text-gray-200">--</span>
+                    <span class="text-[10px] font-bold text-gray-400">M</span>
+                </div>
+            </div>
+
+            <!-- Elevation Ascent -->
+            <div class="glass-panel border border-gray-800 rounded-xl p-2.5 flex flex-col justify-between">
+                <span class="text-[10px] font-bold text-gray-400 uppercase">Stijging</span>
+                <div class="mt-1 flex items-baseline gap-1">
+                    <span id="climbVal" class="digital-font text-2xl sm:text-3xl font-bold text-emerald-400">+0</span>
+                    <span class="text-[10px] font-bold text-gray-400">M</span>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Bottom Action Controls Bar -->
+    <footer class="bg-gray-900 border-t border-gray-800 p-3 sm:p-4 z-20">
+        <div class="max-w-4xl mx-auto grid grid-cols-4 gap-2.5">
+            
+            <!-- Start / Pause Toggle Button -->
+            <button id="startPauseBtn" class="col-span-2 bg-emerald-500 hover:bg-emerald-600 active:scale-95 text-gray-950 font-black py-4 px-4 rounded-2xl flex items-center justify-center gap-2.5 shadow-lg shadow-emerald-500/20 text-lg transition-all cursor-pointer">
+                <i id="startPauseIcon" class="fa-solid fa-play text-xl"></i>
+                <span id="startPauseText">START RIT</span>
+            </button>
+
+            <!-- Stop Ride Button -->
+            <button id="stopBtn" disabled class="col-span-1 bg-gray-800 hover:bg-gray-700 active:scale-95 text-gray-400 disabled:opacity-40 font-bold py-4 px-2 rounded-2xl flex flex-col items-center justify-center gap-1 border border-gray-700 transition cursor-pointer">
+                <i class="fa-solid fa-flag-checkered text-base"></i>
+                <span class="text-[10px] tracking-wider">STOP</span>
+            </button>
+
+            <!-- Settings / Export GPX Menu Button -->
+            <button id="menuBtn" class="col-span-1 bg-gray-800 hover:bg-gray-700 active:scale-95 text-gray-200 font-bold py-4 px-2 rounded-2xl flex flex-col items-center justify-center gap-1 border border-gray-700 transition cursor-pointer">
+                <i class="fa-solid fa-sliders text-base text-emerald-400"></i>
+                <span class="text-[10px] tracking-wider">OPTIES</span>
+            </button>
+
+        </div>
+    </footer>
+
+    <!-- Modal Options & GPX Export -->
+    <div id="actionModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
+        <div class="bg-gray-900 border border-gray-800 rounded-3xl p-6 w-full max-w-sm flex flex-col gap-5 shadow-2xl">
+            <div class="flex justify-between items-center border-b border-gray-800 pb-3">
+                <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                    <i class="fa-solid fa-gear text-emerald-400"></i> Instellingen & GPX
+                </h3>
+                <button id="closeModalBtn" class="text-gray-400 hover:text-white p-1">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
+
+            <!-- Glassmorphism Transparency Slider -->
+            <div class="flex flex-col gap-2 bg-gray-950 p-3.5 rounded-2xl border border-gray-800">
+                <div class="flex justify-between text-xs font-bold text-gray-300">
+                    <span>Transparantie Dashboard</span>
+                    <span id="opacityValText" class="text-emerald-400 font-mono">85%</span>
+                </div>
+                <input id="opacityRange" type="range" min="10" max="100" value="85" class="w-full accent-emerald-500 cursor-pointer">
+                <span class="text-[10px] text-gray-500">Pas de glas-helderheid aan voor betere afleesbaarheid in de zon.</span>
+            </div>
+
+            <!-- Scherm AAN test/status info -->
+            <div class="flex flex-col gap-1 bg-gray-950 p-3.5 rounded-2xl border border-gray-800 text-xs text-gray-300">
+                <div class="font-bold text-gray-200 mb-1 flex items-center gap-1.5">
+                    <i class="fa-solid fa-sun text-amber-400"></i> Scherm Beveiliging:
+                </div>
+                <p class="text-[11px] text-gray-400 leading-relaxed">
+                    Maakt gebruik van de <strong class="text-gray-200">Screen Wake Lock API</strong> gecombineerd met een <strong class="text-gray-200">iOS No-Sleep video-loop</strong> zodat het scherm nooit uitgaat op iPhone en Android.
+                </p>
+            </div>
+
+            <!-- Download GPX for Strava -->
+            <button id="downloadGpxBtn" disabled class="w-full bg-emerald-500 hover:bg-emerald-600 disabled:opacity-40 text-gray-950 font-black py-3.5 px-4 rounded-xl flex items-center justify-center gap-2 shadow transition cursor-pointer">
+                <i class="fa-solid fa-file-export text-lg"></i> Exporteer GPX (Strava / Komoot)
+            </button>
+
+            <!-- Reset Ride Data -->
+            <button id="resetRideBtn" class="w-full bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 font-bold py-3 px-4 rounded-xl flex items-center justify-center gap-2 transition cursor-pointer">
+                <i class="fa-solid fa-trash-can"></i> Rit Wissen & Resetten
+            </button>
+        </div>
     </div>
 
-    <div class="stat-box">
-        <div id="duration" class="stat-value">00:00</div>
-        <div class="unit" style="font-size:11px;">Tijd</div>
-    </div>
-</div>
+    <script>
+        // State variables
+        let isTracking = false;
+        let isPaused = false;
+        let watchId = null;
 
-<div class="controls">
-    <button id="btn-start">START</button>
-    <button id="btn-stop" disabled style="opacity:.5;">STOP</button>
-</div>
+        // Statistics
+        let startTime = null;
+        let pausedTime = 0;
+        let pauseStartTime = null;
+        let timerInterval = null;
 
-<div id="history-container">
-    <div class="history-header">
-        <h3 style="margin:0;">Ritgeschiedenis</h3>
-        <button id="btn-clear-history">Wis alles</button>
-    </div>
+        let totalDistance = 0; // in km
+        let currentSpeed = 0; // in km/h
+        let maxSpeed = 0; // in km/h
+        let avgSpeed = 0; // in km/h
+        let totalAscent = 0; // in meters
 
-    <ul id="history-list" class="history-list"></ul>
-</div>
+        let trackPoints = []; // Stores {lat, lng, alt, time, speed}
+        let lastPosition = null;
 
-<div class="backup-controls">
-    <button id="btn-export" class="btn-backup">📥 Exporteer</button>
-    <button id="btn-import-trigger" class="btn-backup">📤 Importeer</button>
-    <input type="file" id="file-input" accept=".json">
-</div>
+        // Wake Lock variables
+        let wakeLock = null;
+        let isVideoPlaying = false;
 
-<script>
-// Elements
-const speedElement = document.getElementById("speed");
-const distanceElement = document.getElementById("distance");
-const durationElement = document.getElementById("duration");
-const errorElement = document.getElementById("error-message");
+        // DOM Elements
+        const noSleepVideo = document.getElementById('noSleepVideo');
+        const fallbackNotice = document.getElementById('fallbackNotice');
 
-const btnStart = document.getElementById("btn-start");
-const btnStop = document.getElementById("btn-stop");
+        const speedValEl = document.getElementById('speedValue');
+        const distanceValEl = document.getElementById('distanceVal');
+        const timerValEl = document.getElementById('timerVal');
+        const avgSpeedValEl = document.getElementById('avgSpeedVal');
+        const maxSpeedValEl = document.getElementById('maxSpeedVal');
+        const altitudeValEl = document.getElementById('altitudeVal');
+        const climbValEl = document.getElementById('climbVal');
+        const accuracyValEl = document.getElementById('accuracyVal');
+        const headingValEl = document.getElementById('headingVal');
+        const pauseLabelEl = document.getElementById('pauseLabel');
 
-const historyList = document.getElementById("history-list");
-const btnClearHistory = document.getElementById("btn-clear-history");
+        const gpsBadgeEl = document.getElementById('gpsBadge');
+        const gpsStatusTextEl = document.getElementById('gpsStatusText');
+        const gpsPulseEl = document.getElementById('gpsPulse');
+        const gpsDotEl = document.getElementById('gpsDot');
 
-const btnExport = document.getElementById("btn-export");
-const btnImportTrigger = document.getElementById("btn-import-trigger");
-const fileInput = document.getElementById("file-input");
+        const wakeLockBadgeEl = document.getElementById('wakeLockBadge');
+        const wakeLockIconEl = document.getElementById('wakeLockIcon');
+        const wakeLockTextEl = document.getElementById('wakeLockText');
 
-let totalDistance = 0;
-let elapsedSeconds = 0;
-let isTracking = false;
-let lastPosition = null;
-let timerInterval = null;
+        const startPauseBtn = document.getElementById('startPauseBtn');
+        const startPauseIcon = document.getElementById('startPauseIcon');
+        const startPauseText = document.getElementById('startPauseText');
+        const stopBtn = document.getElementById('stopBtn');
+        const menuBtn = document.getElementById('menuBtn');
 
-// TRUCK VOOR SAFARI: Onzichtbare video die het scherm AAN houdt
-const wakeVideo = document.createElement("video");
-wakeVideo.setAttribute("playsinline", "");
-wakeVideo.setAttribute("loop", "");
-wakeVideo.style.display = "none";
-// Een lege, hele korte basistrack
-wakeVideo.src = "data:video/mp4;base64,AAAAIGZ0eXBpc29tAAACAGlzb21pc28yYXZjMW1wNDEAAAAIZnJlZQAAAAA="; 
+        const actionModal = document.getElementById('actionModal');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+        const downloadGpxBtn = document.getElementById('downloadGpxBtn');
+        const resetRideBtn = document.getElementById('resetRideBtn');
+        const opacityRange = document.getElementById('opacityRange');
+        const opacityValText = document.getElementById('opacityValText');
 
-async function keepScreenAwake() {
-    try {
-        // Methode 1: Moderne Wake Lock API
-        if ('wakeLock' in navigator) {
-            await navigator.wakeLock.request('screen');
-        } 
-        // Methode 2: Safari Video Fallback
-        wakeVideo.play().catch(() => {});
-    } catch (err) {
-        console.log("Wake lock actief via video-fallback");
-    }
-}
+        /**
+         * SCHERM ALTIJD AAN - DUBBELE VEILIGHEID:
+         * 1. Screen Wake Lock API voor Chrome, Edge & Safari (iOS 12.6+)
+         * 2. HTML5 Video Loop Fallback voor iOS/Safari energiebesparingsmodi
+         */
+        async function activateKeepAwake() {
+            let wakeLockSuccess = false;
 
-function allowScreenSleep() {
-    wakeVideo.pause();
-}
-
-function calculateDistance(lat1, lon1, lat2, lon2) {
-    const R = 6371;
-    const dLat = (lat2 - lat1) * Math.PI / 180;
-    const dLon = (lon2 - lon1) * Math.PI / 180;
-
-    const a = 
-        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-        Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
-        Math.sin(dLon / 2) * Math.sin(dLon / 2);
-
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    return R * c;
-}
-
-function formatTime(seconds) {
-    const hrs = Math.floor(seconds / 3600);
-    const mins = Math.floor((seconds % 3600) / 60);
-    const secs = seconds % 60;
-
-    if (hrs > 0) {
-        return `${String(hrs).padStart(2, "0")}:${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
-    }
-    return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
-}
-
-function updatePosition(position) {
-    errorElement.innerText = "";
-
-    const speedMS = (position.coords.speed !== null && position.coords.speed >= 0) ? position.coords.speed : 0;
-    const speedKMH = speedMS * 3.6;
-
-    speedElement.innerText = speedKMH.toFixed(1);
-
-    if (!isTracking) return;
-
-    if (position.coords.accuracy > 30) return;
-
-    if (lastPosition) {
-        const distance = calculateDistance(
-            lastPosition.coords.latitude,
-            lastPosition.coords.longitude,
-            position.coords.latitude,
-            position.coords.longitude
-        );
-
-        if (speedMS > 0.3) {
-            totalDistance += distance;
-            distanceElement.innerText = totalDistance.toFixed(2);
-        }
-    }
-
-    lastPosition = position;
-}
-
-function handleError(error) {
-    switch (error.code) {
-        case error.PERMISSION_DENIED:
-            errorElement.innerText = "GPS-toegang geweigerd";
-            break;
-        case error.POSITION_UNAVAILABLE:
-            errorElement.innerText = "GPS-signaal niet beschikbaar";
-            break;
-        case error.TIMEOUT:
-            errorElement.innerText = "GPS-timeout";
-            break;
-        default:
-            errorElement.innerText = "GPS-fout";
-    }
-}
-
-btnStart.addEventListener("click", () => {
-    if (!isTracking) {
-        isTracking = true;
-
-        btnStart.innerText = "PAUZE";
-        btnStart.classList.add("paused");
-
-        btnStop.disabled = false;
-        btnStop.style.opacity = "1";
-
-        // Activeer scherm-AAN beveiliging bij het drukken op START
-        keepScreenAwake();
-
-        timerInterval = setInterval(() => {
-            elapsedSeconds++;
-            durationElement.innerText = formatTime(elapsedSeconds);
-        }, 1000);
-
-    } else {
-        isTracking = false;
-        clearInterval(timerInterval);
-        allowScreenSleep();
-
-        btnStart.innerText = "HERSTART";
-        btnStart.classList.remove("paused");
-
-        lastPosition = null;
-        speedElement.innerText = "0.0";
-    }
-});
-
-btnStop.addEventListener("click", () => {
-    isTracking = false;
-    clearInterval(timerInterval);
-    allowScreenSleep();
-
-    if (totalDistance > 0 || elapsedSeconds > 0) {
-        saveRide(
-            totalDistance.toFixed(2),
-            formatTime(elapsedSeconds)
-        );
-    }
-
-    totalDistance = 0;
-    elapsedSeconds = 0;
-    lastPosition = null;
-
-    speedElement.innerText = "0.0";
-    distanceElement.innerText = "0.00";
-    durationElement.innerText = "00:00";
-
-    btnStart.innerText = "START";
-    btnStart.classList.remove("paused");
-
-    btnStop.disabled = true;
-    btnStop.style.opacity = ".4";
-});
-
-function saveRide(distance, time) {
-    const date = new Date().toLocaleDateString("nl-NL");
-    const ride = { date, distance, time };
-
-    let rides = JSON.parse(localStorage.getItem("rides")) || [];
-    rides.unshift(ride);
-
-    localStorage.setItem("rides", JSON.stringify(rides));
-    renderHistory();
-}
-
-function renderHistory() {
-    historyList.innerHTML = "";
-    const rides = JSON.parse(localStorage.getItem("rides")) || [];
-
-    if (rides.length === 0) {
-        historyList.innerHTML = `<li class="history-item" style="color:var(--text-muted);">Nog geen ritten opgeslagen</li>`;
-        return;
-    }
-
-    rides.forEach(ride => {
-        const li = document.createElement("li");
-        li.className = "history-item";
-        li.innerHTML = `<span>📅 ${ride.date}</span><span>🏁 ${ride.distance} km</span><span>⏱️ ${ride.time}</span>`;
-        historyList.appendChild(li);
-    });
-}
-
-btnClearHistory.addEventListener("click", () => {
-    if (confirm("Alle ritten verwijderen?")) {
-        localStorage.removeItem("rides");
-        renderHistory();
-    }
-});
-
-btnExport.addEventListener("click", () => {
-    const rides = localStorage.getItem("rides") || "[]";
-    const blob = new Blob([rides], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `fietscomputer_backup_${new Date().toISOString().slice(0, 10)}.json`;
-
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-
-    URL.revokeObjectURL(url);
-});
-
-btnImportTrigger.addEventListener("click", () => {
-    fileInput.click();
-});
-
-fileInput.addEventListener("change", (event) => {
-    const file = event.target.files[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-
-    reader.onload = function(e) {
-        try {
-            const imported = JSON.parse(e.target.result);
-
-            if (Array.isArray(imported)) {
-                localStorage.setItem("rides", JSON.stringify(imported));
-                renderHistory();
-                alert("Backup geïmporteerd");
-            } else {
-                alert("Ongeldig bestand");
+            // Techniek 1: Native Screen Wake Lock API
+            if ('wakeLock' in navigator) {
+                try {
+                    wakeLock = await navigator.wakeLock.request('screen');
+                    wakeLockSuccess = true;
+                    
+                    // Event als het systeem de lock verliest (bijv. accusparende stand)
+                    wakeLock.addEventListener('release', () => {
+                        if (isTracking && !isPaused) {
+                            activateKeepAwake(); // Opnieuw proberen op te pakken
+                        }
+                    });
+                } catch (err) {
+                    console.log(`WakeLock API niet beschikbaar/geweigerd: ${err.message}`);
+                }
             }
-        } catch {
-            alert("Fout bij lezen bestand");
+
+            // Techniek 2: iOS / Safari Video Loop Fallback (werkt altijd in iOS wanneer gestart op user gesture)
+            try {
+                if (noSleepVideo) {
+                    const playPromise = noSleepVideo.play();
+                    if (playPromise !== undefined) {
+                        playPromise.then(() => {
+                            isVideoPlaying = true;
+                            if (!wakeLockSuccess) {
+                                fallbackNotice.classList.remove('hidden');
+                            }
+                        }).catch(e => {
+                            console.log("Video autoplay geblokkeerd:", e);
+                        });
+                    }
+                }
+            } catch (err) {
+                console.log("iOS Video loop fallback error:", err);
+            }
+
+            // Update UI status badge
+            wakeLockBadgeEl.className = 'flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 font-bold';
+            wakeLockIconEl.className = 'fa-solid fa-lock text-[10px] text-emerald-400';
+            wakeLockTextEl.textContent = 'Scherm: ACTIEF';
         }
-        event.target.value = "";
-    };
 
-    reader.readAsText(file);
-});
+        async function deactivateKeepAwake() {
+            // Release Native Wake Lock
+            if (wakeLock !== null) {
+                try {
+                    await wakeLock.release();
+                } catch (e) {}
+                wakeLock = null;
+            }
 
-if ("geolocation" in navigator) {
-    navigator.geolocation.watchPosition(
-        updatePosition,
-        handleError,
-        {
-            enableHighAccuracy: true,
-            timeout: 10000,
-            maximumAge: 0
+            // Pause Video Loop
+            if (noSleepVideo && isVideoPlaying) {
+                noSleepVideo.pause();
+                isVideoPlaying = false;
+            }
+
+            fallbackNotice.classList.add('hidden');
+
+            // Reset UI status badge
+            wakeLockBadgeEl.className = 'flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-gray-800 text-gray-400 border border-gray-700 font-semibold';
+            wakeLockIconEl.className = 'fa-solid fa-lock-open text-[10px]';
+            wakeLockTextEl.textContent = 'Scherm: UIT';
         }
-    );
-} else {
-    errorElement.innerText = "GPS niet ondersteund";
-}
 
-renderHistory();
-</script>
+        // Automatic re-activation on visibilitychange (bijv. als gebruiker swipet en terugkeert naar de app)
+        document.addEventListener('visibilitychange', async () => {
+            if (document.visibilityState === 'visible' && isTracking && !isPaused) {
+                await activateKeepAwake();
+            }
+        });
 
+        // Audio Feedback
+        function playBeep(freq = 880, duration = 120) {
+            try {
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.value = freq;
+                gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + (duration / 1000));
+            } catch (e) {}
+        }
+
+        // Calculate Haversine Distance (in km)
+        function calculateHaversineDistance(lat1, lon1, lat2, lon2) {
+            const R = 6371; // Aardstraal in KM
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = 
+                Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
+                Math.sin(dLon / 2) * Math.sin(dLon / 2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            return R * c;
+        }
+
+        // Heading degrees to compass direction
+        function getCardinalDirection(angle) {
+            if (angle === null || isNaN(angle)) return '--';
+            const directions = ['N', 'NO', 'O', 'ZO', 'Z', 'ZW', 'W', 'NW'];
+            return directions[Math.round(angle / 45) % 8];
+        }
+
+        // Handle incoming Geolocation updates
+        function handlePositionUpdate(position) {
+            const coords = position.coords;
+            const lat = coords.latitude;
+            const lng = coords.longitude;
+            const accuracy = Math.round(coords.accuracy);
+            const timestamp = position.timestamp;
+
+            // GPS Signal status update
+            accuracyValEl.textContent = accuracy;
+            gpsStatusTextEl.textContent = accuracy <= 15 ? 'Sterk GPS' : 'Zwak GPS';
+            
+            if (accuracy <= 15) {
+                gpsBadgeEl.className = "flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/30";
+                gpsPulseEl.className = "animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75";
+                gpsDotEl.className = "relative inline-flex rounded-full h-2 w-2 bg-emerald-500";
+            } else {
+                gpsBadgeEl.className = "flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/30";
+                gpsPulseEl.className = "animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75";
+                gpsDotEl.className = "relative inline-flex rounded-full h-2 w-2 bg-amber-500";
+            }
+
+            // Heading update
+            if (coords.heading !== null && !isNaN(coords.heading)) {
+                headingValEl.textContent = getCardinalDirection(coords.heading);
+            }
+
+            // Altitude update
+            if (coords.altitude !== null && !isNaN(coords.altitude)) {
+                altitudeValEl.textContent = Math.round(coords.altitude);
+            }
+
+            // If not tracking or paused, do not update ride statistics
+            if (!isTracking || isPaused) {
+                return;
+            }
+
+            // Speed calculation (m/s to km/h)
+            if (coords.speed !== null && !isNaN(coords.speed) && coords.speed >= 0) {
+                currentSpeed = coords.speed * 3.6;
+            } else if (lastPosition) {
+                // Fallback: bereken snelheid op basis van afstand en tijd verschil
+                const timeDiffHours = (timestamp - lastPosition.timestamp) / (1000 * 3600);
+                const distKm = calculateHaversineDistance(lastPosition.lat, lastPosition.lng, lat, lng);
+                currentSpeed = timeDiffHours > 0 ? (distKm / timeDiffHours) : 0;
+            } else {
+                currentSpeed = 0;
+            }
+
+            // Ruisonderdrukking bij stilstand
+            if (currentSpeed < 0.8) currentSpeed = 0;
+
+            // Update afstand en stijgmeters
+            if (lastPosition) {
+                const incrementalDist = calculateHaversineDistance(lastPosition.lat, lastPosition.lng, lat, lng);
+                
+                // Negeer onrealistische GPS sprongen (> 100 km/h of lage nauwkeurigheid)
+                if (incrementalDist < 0.25 && accuracy < 35) {
+                    totalDistance += incrementalDist;
+
+                    // Stijgmeters berekening
+                    if (coords.altitude !== null && lastPosition.alt !== null) {
+                        const climbDiff = coords.altitude - lastPosition.alt;
+                        if (climbDiff > 1.2) { // Drempel tegen GPS ruis
+                            totalAscent += climbDiff;
+                        }
+                    }
+                }
+            }
+
+            // Max snelheid update
+            if (currentSpeed > maxSpeed) {
+                maxSpeed = currentSpeed;
+            }
+
+            // Bewaar Trackpoint voor GPX export
+            trackPoints.push({
+                lat: lat,
+                lng: lng,
+                alt: coords.altitude || 0,
+                time: new Date(timestamp).toISOString(),
+                speed: currentSpeed
+            });
+
+            // Update UI elements
+            speedValEl.textContent = currentSpeed.toFixed(1);
+            distanceValEl.textContent = totalDistance.toFixed(2);
+            maxSpeedValEl.textContent = maxSpeed.toFixed(1);
+            climbValEl.textContent = `+${Math.round(totalAscent)}`;
+
+            lastPosition = { lat, lng, alt: coords.altitude, timestamp };
+
+            if (trackPoints.length > 1) {
+                downloadGpxBtn.disabled = false;
+            }
+        }
+
+        function handlePositionError(err) {
+            console.warn(`GPS Fout (${err.code}): ${err.message}`);
+            gpsStatusTextEl.textContent = 'Geen GPS';
+            gpsBadgeEl.className = "flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-rose-500/10 text-rose-400 border border-rose-500/30";
+            gpsPulseEl.className = "hidden";
+            gpsDotEl.className = "relative inline-flex rounded-full h-2 w-2 bg-rose-500";
+        }
+
+        // Timer update loop
+        function updateTimer() {
+            if (!startTime || isPaused) return;
+
+            const now = Date.now();
+            const elapsedMs = now - startTime - pausedTime;
+            
+            const totalSeconds = Math.floor(elapsedMs / 1000);
+            const hours = Math.floor(totalSeconds / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const seconds = totalSeconds % 60;
+
+            timerValEl.textContent = 
+                `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+
+            // Gemiddelde snelheid
+            const elapsedHours = elapsedMs / (1000 * 3600);
+            if (elapsedHours > 0 && totalDistance > 0) {
+                avgSpeed = totalDistance / elapsedHours;
+                avgSpeedValEl.textContent = avgSpeed.toFixed(1);
+            }
+        }
+
+        // Geolocation initializer
+        function initGPS() {
+            if ('geolocation' in navigator) {
+                watchId = navigator.geolocation.watchPosition(
+                    handlePositionUpdate,
+                    handlePositionError,
+                    {
+                        enableHighAccuracy: true,
+                        maximumAge: 1000,
+                        timeout: 10000
+                    }
+                );
+            } else {
+                alert('Geolocatie wordt niet ondersteund door je browser.');
+            }
+        }
+
+        // Button Controls
+        startPauseBtn.addEventListener('click', async () => {
+            playBeep(920, 140);
+
+            if (!isTracking) {
+                // START RIT
+                isTracking = true;
+                isPaused = false;
+                startTime = Date.now();
+                pausedTime = 0;
+                
+                timerInterval = setInterval(updateTimer, 1000);
+                
+                // activeer scherm-aan
+                await activateKeepAwake();
+
+                // UI updates
+                startPauseBtn.className = "col-span-2 bg-amber-500 hover:bg-amber-600 active:scale-95 text-gray-950 font-black py-4 px-4 rounded-2xl flex items-center justify-center gap-2.5 shadow-lg shadow-amber-500/20 text-lg transition-all cursor-pointer";
+                startPauseIcon.className = "fa-solid fa-pause text-xl";
+                startPauseText.textContent = "PAUZE";
+                stopBtn.disabled = false;
+                pauseLabelEl.textContent = "Actief";
+                pauseLabelEl.className = "text-[10px] text-emerald-400 font-semibold";
+
+            } else if (!isPaused) {
+                // PAUZEER RIT
+                isPaused = true;
+                pauseStartTime = Date.now();
+                
+                startPauseBtn.className = "col-span-2 bg-emerald-500 hover:bg-emerald-600 active:scale-95 text-gray-950 font-black py-4 px-4 rounded-2xl flex items-center justify-center gap-2.5 shadow-lg shadow-emerald-500/20 text-lg transition-all cursor-pointer";
+                startPauseIcon.className = "fa-solid fa-play text-xl";
+                startPauseText.textContent = "HERVATTEN";
+                pauseLabelEl.textContent = "Gepauzeerd";
+                pauseLabelEl.className = "text-[10px] text-amber-400 font-semibold";
+
+            } else {
+                // HERVAT RIT
+                isPaused = false;
+                pausedTime += (Date.now() - pauseStartTime);
+                
+                await activateKeepAwake();
+
+                startPauseBtn.className = "col-span-2 bg-amber-500 hover:bg-amber-600 active:scale-95 text-gray-950 font-black py-4 px-4 rounded-2xl flex items-center justify-center gap-2.5 shadow-lg shadow-amber-500/20 text-lg transition-all cursor-pointer";
+                startPauseIcon.className = "fa-solid fa-pause text-xl";
+                startPauseText.textContent = "PAUZE";
+                pauseLabelEl.textContent = "Actief";
+                pauseLabelEl.className = "text-[10px] text-emerald-400 font-semibold";
+            }
+        });
+
+        stopBtn.addEventListener('click', () => {
+            if (!isTracking) return;
+            playBeep(600, 200);
+
+            isPaused = true;
+            clearInterval(timerInterval);
+            deactivateKeepAwake();
+
+            startPauseBtn.className = "col-span-2 bg-emerald-500 text-gray-950 font-black py-4 px-4 rounded-2xl flex items-center justify-center gap-2.5 shadow-lg text-lg opacity-50 cursor-not-allowed";
+            startPauseIcon.className = "fa-solid fa-check text-xl";
+            startPauseText.textContent = "AFGESLOTEN";
+            startPauseBtn.disabled = true;
+            stopBtn.disabled = true;
+            pauseLabelEl.textContent = "Voltooid";
+            pauseLabelEl.className = "text-[10px] text-gray-400";
+
+            actionModal.classList.remove('hidden');
+        });
+
+        menuBtn.addEventListener('click', () => {
+            actionModal.classList.remove('hidden');
+        });
+
+        closeModalBtn.addEventListener('click', () => {
+            actionModal.classList.add('hidden');
+        });
+
+        // Opacity Slider adjustment
+        opacityRange.addEventListener('input', (e) => {
+            const val = e.target.value;
+            opacityValText.textContent = `${val}%`;
+            document.documentElement.style.setProperty('--glass-opacity', val / 100);
+        });
+
+        // Reset Ride
+        resetRideBtn.addEventListener('click', () => {
+            if (confirm("Weet je zeker dat je alle gegevens van deze rit wilt wissen?")) {
+                clearInterval(timerInterval);
+                isTracking = false;
+                isPaused = false;
+                startTime = null;
+                pausedTime = 0;
+                totalDistance = 0;
+                currentSpeed = 0;
+                maxSpeed = 0;
+                avgSpeed = 0;
+                totalAscent = 0;
+                trackPoints = [];
+                lastPosition = null;
+
+                speedValEl.textContent = '0.0';
+                distanceValEl.textContent = '0.00';
+                timerValEl.textContent = '00:00:00';
+                avgSpeedValEl.textContent = '0.0';
+                maxSpeedValEl.textContent = '0.0';
+                climbValEl.textContent = '+0';
+                
+                startPauseBtn.disabled = false;
+                startPauseBtn.className = "col-span-2 bg-emerald-500 hover:bg-emerald-600 active:scale-95 text-gray-950 font-black py-4 px-4 rounded-2xl flex items-center justify-center gap-2.5 shadow-lg shadow-emerald-500/20 text-lg transition-all cursor-pointer";
+                startPauseIcon.className = "fa-solid fa-play text-xl";
+                startPauseText.textContent = "START RIT";
+                stopBtn.disabled = true;
+                downloadGpxBtn.disabled = true;
+                pauseLabelEl.textContent = "Gestopt";
+
+                actionModal.classList.add('hidden');
+                deactivateKeepAwake();
+            }
+        });
+
+        // GPX File Generation for Strava/Komoot
+        downloadGpxBtn.addEventListener('click', () => {
+            if (trackPoints.length === 0) return;
+
+            let gpxContent = `<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="VeloPRO Bicycle Computer" xmlns="http://www.topografix.com/GPX/1/1">
+  <metadata>
+    <name>Fietsrit ${new Date().toLocaleDateString('nl-NL')}</name>
+    <time>${new Date().toISOString()}</time>
+  </metadata>
+  <trk>
+    <name>Fietsrit</name>
+    <trkseg>
+`;
+
+            trackPoints.forEach(pt => {
+                gpxContent += `      <trkpt lat="${pt.lat}" lon="${pt.lng}">
+        <ele>${pt.alt}</ele>
+        <time>${pt.time}</time>
+      </trkpt>\n`;
+            });
+
+            gpxContent += `    </trkseg>
+  </trk>
+</gpx>`;
+
+            const blob = new Blob([gpxContent], { type: 'application/gpx+xml' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Fietsrit_${new Date().toISOString().slice(0,10)}.gpx`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        });
+
+        // Initialize on load
+        window.onload = () => {
+            initGPS();
+        };
+    </script>
 </body>
 </html>
