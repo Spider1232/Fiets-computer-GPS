@@ -15,6 +15,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&family=Teko:wght@500;600;700&display=swap" rel="stylesheet">
 
     <style>
+        :root {
+            --glass-opacity: 0.85;
+        }
         body {
             font-family: 'Inter', sans-serif;
             touch-action: manipulation;
@@ -29,16 +32,9 @@
             line-height: 0.85;
         }
         .glass-panel {
-            background-color: rgba(17, 24, 39, var(--glass-opacity, 0.85));
+            background-color: rgba(17, 24, 39, var(--glass-opacity));
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
-        }
-        .pulse-emerald {
-            animation: pulse-emerald-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-        }
-        @keyframes pulse-emerald-ring {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.4; transform: scale(1.08); }
         }
         /* Custom scrollbars */
         ::-webkit-scrollbar {
@@ -54,7 +50,6 @@
 
     <!-- Onzichtbare HTML5 video-loop fallback voor iOS/Safari scherm-aan beveiliging -->
     <video id="noSleepVideo" loop playsinline muted class="hidden pointer-events-none w-1 h-1 opacity-0 absolute -z-50">
-        <!-- Kleine, geldige base64 H.264 video buffer van 1 frame -->
         <source src="data:video/mp4;base64,AAAAIGZ0eXBpc29tAAACAGlzb21pc28ybXA0MQAAAAhmcmVlAAAAAG1kYXQAAAAAAAABAAAAAAA=" type="video/mp4">
     </video>
 
@@ -70,7 +65,7 @@
             <!-- Screen Always On Status Badge -->
             <div id="wakeLockBadge" class="flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-gray-800 text-gray-400 border border-gray-700 font-semibold transition-all">
                 <i id="wakeLockIcon" class="fa-solid fa-lock-open text-[10px]"></i>
-                <span id="wakeLockText">Scherm: UITE</span>
+                <span id="wakeLockText">Scherm: UIT</span>
             </div>
 
             <!-- GPS Status Indicator -->
@@ -321,10 +316,9 @@
                     wakeLock = await navigator.wakeLock.request('screen');
                     wakeLockSuccess = true;
                     
-                    // Event als het systeem de lock verliest (bijv. accusparende stand)
                     wakeLock.addEventListener('release', () => {
                         if (isTracking && !isPaused) {
-                            activateKeepAwake(); // Opnieuw proberen op te pakken
+                            activateKeepAwake();
                         }
                     });
                 } catch (err) {
@@ -332,7 +326,7 @@
                 }
             }
 
-            // Techniek 2: iOS / Safari Video Loop Fallback (werkt altijd in iOS wanneer gestart op user gesture)
+            // Techniek 2: iOS / Safari Video Loop Fallback
             try {
                 if (noSleepVideo) {
                     const playPromise = noSleepVideo.play();
@@ -358,7 +352,6 @@
         }
 
         async function deactivateKeepAwake() {
-            // Release Native Wake Lock
             if (wakeLock !== null) {
                 try {
                     await wakeLock.release();
@@ -366,7 +359,6 @@
                 wakeLock = null;
             }
 
-            // Pause Video Loop
             if (noSleepVideo && isVideoPlaying) {
                 noSleepVideo.pause();
                 isVideoPlaying = false;
@@ -374,13 +366,12 @@
 
             fallbackNotice.classList.add('hidden');
 
-            // Reset UI status badge
             wakeLockBadgeEl.className = 'flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-gray-800 text-gray-400 border border-gray-700 font-semibold';
             wakeLockIconEl.className = 'fa-solid fa-lock-open text-[10px]';
             wakeLockTextEl.textContent = 'Scherm: UIT';
         }
 
-        // Automatic re-activation on visibilitychange (bijv. als gebruiker swipet en terugkeert naar de app)
+        // Automatic re-activation on visibilitychange
         document.addEventListener('visibilitychange', async () => {
             if (document.visibilityState === 'visible' && isTracking && !isPaused) {
                 await activateKeepAwake();
@@ -455,7 +446,6 @@
                 altitudeValEl.textContent = Math.round(coords.altitude);
             }
 
-            // If not tracking or paused, do not update ride statistics
             if (!isTracking || isPaused) {
                 return;
             }
@@ -464,9 +454,9 @@
             if (coords.speed !== null && !isNaN(coords.speed) && coords.speed >= 0) {
                 currentSpeed = coords.speed * 3.6;
             } else if (lastPosition) {
-                // Fallback: bereken snelheid op basis van afstand en tijd verschil
+                // Fixed: correct coordinate properties
                 const timeDiffHours = (timestamp - lastPosition.timestamp) / (1000 * 3600);
-                const distKm = calculateHaversineDistance(lastPosition.lat, lastPosition.lng, lat, lng);
+                const distKm = calculateHaversineDistance(lastPosition.latitude, lastPosition.longitude, lat, lng);
                 currentSpeed = timeDiffHours > 0 ? (distKm / timeDiffHours) : 0;
             } else {
                 currentSpeed = 0;
@@ -477,23 +467,21 @@
 
             // Update afstand en stijgmeters
             if (lastPosition) {
-                const incrementalDist = calculateHaversineDistance(lastPosition.lat, lastPosition.lng, lat, lng);
+                const incrementalDist = calculateHaversineDistance(lastPosition.latitude, lastPosition.longitude, lat, lng);
                 
-                // Negeer onrealistische GPS sprongen (> 100 km/h of lage nauwkeurigheid)
+                // Negeer onrealistische GPS sprongen
                 if (incrementalDist < 0.25 && accuracy < 35) {
                     totalDistance += incrementalDist;
 
-                    // Stijgmeters berekening
                     if (coords.altitude !== null && lastPosition.alt !== null) {
                         const climbDiff = coords.altitude - lastPosition.alt;
-                        if (climbDiff > 1.2) { // Drempel tegen GPS ruis
+                        if (climbDiff > 1.2) {
                             totalAscent += climbDiff;
                         }
                     }
                 }
             }
 
-            // Max snelheid update
             if (currentSpeed > maxSpeed) {
                 maxSpeed = currentSpeed;
             }
@@ -513,7 +501,7 @@
             maxSpeedValEl.textContent = maxSpeed.toFixed(1);
             climbValEl.textContent = `+${Math.round(totalAscent)}`;
 
-            lastPosition = { lat, lng, alt: coords.altitude, timestamp };
+            lastPosition = { latitude: lat, longitude: lng, alt: coords.altitude, timestamp };
 
             if (trackPoints.length > 1) {
                 downloadGpxBtn.disabled = false;
@@ -543,7 +531,6 @@
             timerValEl.textContent = 
                 `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
 
-            // Gemiddelde snelheid
             const elapsedHours = elapsedMs / (1000 * 3600);
             if (elapsedHours > 0 && totalDistance > 0) {
                 avgSpeed = totalDistance / elapsedHours;
@@ -580,11 +567,8 @@
                 pausedTime = 0;
                 
                 timerInterval = setInterval(updateTimer, 1000);
-                
-                // activeer scherm-aan
                 await activateKeepAwake();
 
-                // UI updates
                 startPauseBtn.className = "col-span-2 bg-amber-500 hover:bg-amber-600 active:scale-95 text-gray-950 font-black py-4 px-4 rounded-2xl flex items-center justify-center gap-2.5 shadow-lg shadow-amber-500/20 text-lg transition-all cursor-pointer";
                 startPauseIcon.className = "fa-solid fa-pause text-xl";
                 startPauseText.textContent = "PAUZE";
